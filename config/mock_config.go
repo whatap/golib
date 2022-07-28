@@ -56,13 +56,13 @@ func (_m *MockConfig) GetInt(key string, def int) int32 {
 	return r0
 }
 
-// GetIntSet provides a mock function with given fields: key, defaultValue, deli
-func (_m *MockConfig) GetIntSet(key string, defaultValue string, deli string) []int32 {
-	ret := _m.Called(key, defaultValue, deli)
+// GetIntSet provides a mock function with given fields: key, def, deli
+func (_m *MockConfig) GetIntSet(key string, def string, deli string) []int32 {
+	ret := _m.Called(key, def, deli)
 
 	var r0 []int32
 	if rf, ok := ret.Get(0).(func(string, string, string) []int32); ok {
-		r0 = rf(key, defaultValue, deli)
+		r0 = rf(key, def, deli)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]int32)
@@ -86,13 +86,13 @@ func (_m *MockConfig) GetLong(key string, def int64) int64 {
 	return r0
 }
 
-// GetStringArray provides a mock function with given fields: key, deli
-func (_m *MockConfig) GetStringArray(key string, deli string) []string {
-	ret := _m.Called(key, deli)
+// GetStringArray provides a mock function with given fields: key, def, deli
+func (_m *MockConfig) GetStringArray(key string, def string, deli string) []string {
+	ret := _m.Called(key, def, deli)
 
 	var r0 []string
-	if rf, ok := ret.Get(0).(func(string, string) []string); ok {
-		r0 = rf(key, deli)
+	if rf, ok := ret.Get(0).(func(string, string, string) []string); ok {
+		r0 = rf(key, def, deli)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
@@ -102,13 +102,13 @@ func (_m *MockConfig) GetStringArray(key string, deli string) []string {
 	return r0
 }
 
-// GetStringHashCodeSet provides a mock function with given fields: key, defaultValue, deli
-func (_m *MockConfig) GetStringHashCodeSet(key string, defaultValue string, deli string) []int32 {
-	ret := _m.Called(key, defaultValue, deli)
+// GetStringHashCodeSet provides a mock function with given fields: key, def, deli
+func (_m *MockConfig) GetStringHashCodeSet(key string, def string, deli string) []int32 {
+	ret := _m.Called(key, def, deli)
 
 	var r0 []int32
 	if rf, ok := ret.Get(0).(func(string, string, string) []int32); ok {
-		r0 = rf(key, defaultValue, deli)
+		r0 = rf(key, def, deli)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]int32)
@@ -118,13 +118,13 @@ func (_m *MockConfig) GetStringHashCodeSet(key string, defaultValue string, deli
 	return r0
 }
 
-// GetStringHashSet provides a mock function with given fields: key, defaultValue, deli
-func (_m *MockConfig) GetStringHashSet(key string, defaultValue string, deli string) []int32 {
-	ret := _m.Called(key, defaultValue, deli)
+// GetStringHashSet provides a mock function with given fields: key, def, deli
+func (_m *MockConfig) GetStringHashSet(key string, def string, deli string) []int32 {
+	ret := _m.Called(key, def, deli)
 
 	var r0 []int32
 	if rf, ok := ret.Get(0).(func(string, string, string) []int32); ok {
-		r0 = rf(key, defaultValue, deli)
+		r0 = rf(key, def, deli)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]int32)
@@ -160,6 +160,11 @@ func (_m *MockConfig) GetValueDef(key string, def string) string {
 	}
 
 	return r0
+}
+
+// SetValues provides a mock function with given fields: v
+func (_m *MockConfig) SetValues(v *map[string]string) {
+	_m.Called(v)
 }
 
 // String provides a mock function with given fields:

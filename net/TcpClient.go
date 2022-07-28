@@ -33,7 +33,9 @@ type Initializer interface {
 }
 
 type TcpClientConfig struct {
-	License string
+	License    string
+	Priority   bool
+	SecureFlag byte
 }
 
 type TcpClientOption interface {
@@ -55,6 +57,18 @@ func newFuncTcpClientOption(f func(*TcpClientConfig)) TcpClientOption {
 func WithLicense(license string) TcpClientOption {
 	return newFuncTcpClientOption(func(c *TcpClientConfig) {
 		c.License = license
+	})
+}
+
+func WithSecureFlag(flag byte) TcpClientOption {
+	return newFuncTcpClientOption(func(c *TcpClientConfig) {
+		c.SecureFlag = flag
+	})
+}
+
+func WithPriority(b bool) TcpClientOption {
+	return newFuncTcpClientOption(func(c *TcpClientConfig) {
+		c.Priority = b
 	})
 }
 

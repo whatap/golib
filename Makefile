@@ -1,8 +1,13 @@
 
-test:
-	go test ./... -v
+build: package test
 
-build:
+generate:
+	go generate ./...
+
+test:
+	go test ./...
+
+package:
 	go mod download -x
 	go build ./...
 

@@ -18,7 +18,7 @@ type Config interface {
 	GetStringHashSet(key, def, deli string) []int32
 	GetStringHashCodeSet(key, def, deli string) []int32
 	GetFloat(key string, def float32) float32
-	SetValues(v map[string]string)
+	SetValues(v *map[string]string)
 	ToString() string
 	String() string
 }
