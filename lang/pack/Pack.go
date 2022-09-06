@@ -100,6 +100,8 @@ const (
 	PACK_SM_PING = 0x3012
 
 	ADDIN_VTYPE_CONTAINER = "container"
+
+	PACK_SERVERINFO = 0x6500
 )
 
 type Pack interface {
@@ -168,6 +170,9 @@ func CreatePack(t int16) Pack {
 		return NewLogSinkPack()
 	case PACK_ZIP:
 		return NewZipPack()
+
+	case PACK_SERVERINFO:
+		return NewServerInfoPack()
 	}
 
 	return nil

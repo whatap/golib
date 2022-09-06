@@ -54,6 +54,31 @@ func Hash64Str(str string) int64 {
 	return Hash64([]byte(str))
 }
 
+func GetLongHash(s string) int64 {
+	if s == "" {
+		return 0
+	}
+	return Hash64v2([]byte(s))
+}
+func Hash64v2(bytes []byte) int64 {
+	if bytes == nil {
+		return 0
+	}
+	crc := uint64(0xffffffffffffffff)
+
+	sz := len(bytes)
+	for i := 0; i < sz; i++ {
+		b := bytes[i]
+		crc = crc >> 8
+		n1 := uint64(table[uint8(int32(crc)^int32(b))])
+		n2 := uint64(table[uint8(int32(crc>>32)^int32(b))])
+		crc = crc ^ (n1 & 0xffffffff)
+		crc = crc ^ (n2 << 32)
+	}
+	crc = crc ^ 0xffffffffffffffff
+	return int64(crc)
+}
+
 func HashAddr(src []byte) int64 {
 	switch len(src) {
 	case 4:

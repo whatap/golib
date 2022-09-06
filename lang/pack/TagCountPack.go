@@ -34,6 +34,11 @@ func (this *TagCountPack) ToString() string {
 func (this *TagCountPack) GetTag(name string) string {
 	return this.Tags.GetString(name)
 }
+
+func (this *TagCountPack) GetTagHash() int64 {
+	return this.tagHash
+}
+
 func (this *TagCountPack) PutTag(name, val string) {
 	this.Tags.PutString(name, val)
 }
