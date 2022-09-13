@@ -20,6 +20,8 @@ type fileLoggerConfig struct {
 	oname    string
 	logID    string
 	homePath string
+
+	IsStdout bool
 }
 
 func defaultFileLoggerConfig() fileLoggerConfig {
@@ -79,5 +81,10 @@ func WithOnameLogID(oname, logID string) FileLoggerOption {
 func WithLevel(lv int) FileLoggerOption {
 	return newFuncFileLoggerOption(func(c *fileLoggerConfig) {
 		c.level = lv
+	})
+}
+func WithStdout(b bool) FileLoggerOption {
+	return newFuncFileLoggerOption(func(c *fileLoggerConfig) {
+		c.IsStdout = b
 	})
 }

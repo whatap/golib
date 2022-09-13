@@ -2,6 +2,7 @@ package logfile
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"os"
@@ -64,7 +65,7 @@ type FileLogger struct {
 	lastFileRotation bool
 }
 
-var defaultFileLogger *FileLogger = NewFileLogger()
+var defaultFileLogger *FileLogger
 var fileLoggerMutex sync.Mutex
 
 // 패키지 로드
@@ -191,7 +192,12 @@ func (this *FileLogger) openFile() {
 		//fmt.Println("Logger open file", this.logfile)
 
 		// 로거를 파일로그로 변경
-		this.myLog.SetOutput(this.logfile)
+		if this.conf.IsStdout {
+			multi := io.MultiWriter(this.logfile, os.Stdout)
+			log.SetOutput(multi)
+		} else {
+			this.myLog.SetOutput(this.logfile)
+		}
 		this.myLog.SetFlags(log.Ldate | log.Ltime)
 
 		this.myLog.Println("")
