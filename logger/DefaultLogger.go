@@ -58,13 +58,13 @@ func (this *DefaultLogger) Infoln(args ...interface{}) {
 	s := fmt.Sprintln(args...)
 	log.Println("[Info] ", s)
 }
-func (this *DefaultLogger) Printf(format string, args ...interface{}) {
+func (this *DefaultLogger) Printf(id string, format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
-	log.Println("[Print] ", s)
+	log.Println(id, s)
 }
-func (this *DefaultLogger) Println(args ...interface{}) {
+func (this *DefaultLogger) Println(id string, args ...interface{}) {
 	s := fmt.Sprintln(args...)
-	log.Println("[Print] ", s)
+	log.Println(id, s)
 }
 func (this *DefaultLogger) Debugf(format string, args ...interface{}) {
 	if this.Level <= LOG_LEVEL_DEBUG {

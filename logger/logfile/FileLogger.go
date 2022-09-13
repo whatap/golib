@@ -194,7 +194,7 @@ func (this *FileLogger) openFile() {
 		// 로거를 파일로그로 변경
 		if this.conf.IsStdout {
 			multi := io.MultiWriter(this.logfile, os.Stdout)
-			log.SetOutput(multi)
+			this.myLog.SetOutput(multi)
 		} else {
 			this.myLog.SetOutput(this.logfile)
 		}
