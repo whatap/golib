@@ -4,7 +4,7 @@ const (
 	LOG_LEVEL_ERROR = 0
 	LOG_LEVEL_WARN  = 1
 	LOG_LEVEL_INFO  = 2
-	LOG_LEVEL_DEBUG = 4
+	LOG_LEVEL_DEBUG = 3
 )
 
 type Logger interface {

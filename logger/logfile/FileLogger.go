@@ -225,7 +225,7 @@ func (this *FileLogger) Error(args ...interface{}) {
 	this.myLog.Println(ansi.Red(fmt.Sprintf("%s %s", "[Error]", s)))
 }
 func (this *FileLogger) Warnf(format string, args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_WARN {
+	if this.conf.level > logger.LOG_LEVEL_WARN {
 		return
 	}
 	s := fmt.Sprintf(format, args...)
@@ -236,7 +236,7 @@ func (this *FileLogger) Warnf(format string, args ...interface{}) {
 	this.myLog.Println("[Warn] ", s)
 }
 func (this *FileLogger) Warn(args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_WARN {
+	if this.conf.level > logger.LOG_LEVEL_WARN {
 		return
 	}
 	s := fmt.Sprintln(args...)
@@ -247,7 +247,7 @@ func (this *FileLogger) Warn(args ...interface{}) {
 	this.myLog.Println("[Warn] ", s)
 }
 func (this *FileLogger) Infof(format string, args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_INFO {
+	if this.conf.level > logger.LOG_LEVEL_INFO {
 		return
 	}
 	s := fmt.Sprintf(format, args...)
@@ -258,7 +258,7 @@ func (this *FileLogger) Infof(format string, args ...interface{}) {
 	this.myLog.Println("[Info] ", s)
 }
 func (this *FileLogger) Info(args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_INFO {
+	if this.conf.level > logger.LOG_LEVEL_INFO {
 		return
 	}
 	s := fmt.Sprintln(args...)
@@ -269,7 +269,7 @@ func (this *FileLogger) Info(args ...interface{}) {
 	this.myLog.Println("[Info] ", s)
 }
 func (this *FileLogger) Infoln(args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_INFO {
+	if this.conf.level > logger.LOG_LEVEL_INFO {
 		return
 	}
 	s := fmt.Sprintln(args...)
@@ -282,7 +282,7 @@ func (this *FileLogger) Infoln(args ...interface{}) {
 
 //debug level, nocache
 func (this *FileLogger) Debugf(format string, args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_DEBUG {
+	if this.conf.level > logger.LOG_LEVEL_DEBUG {
 		return
 	}
 	s := fmt.Sprintf(format, args...)
@@ -291,7 +291,7 @@ func (this *FileLogger) Debugf(format string, args ...interface{}) {
 
 //debug level, nocache
 func (this *FileLogger) Debug(args ...interface{}) {
-	if this.conf.level <= logger.LOG_LEVEL_DEBUG {
+	if this.conf.level > logger.LOG_LEVEL_DEBUG {
 		return
 	}
 	s := fmt.Sprintln(args...)
