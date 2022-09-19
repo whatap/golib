@@ -118,8 +118,6 @@ func newOneWayTcpClient(opts ...OneWayTcpClientOption) *OneWayTcpClient {
 	return p
 }
 func (this *OneWayTcpClient) Connect() error {
-	oneWayClientSendLock.Lock()
-	defer oneWayClientSendLock.Unlock()
 	//fmt.Println("Connect host len =", len(this.Servers))
 	if this.conn != nil {
 		return nil
@@ -142,9 +140,6 @@ func (this *OneWayTcpClient) Connect() error {
 }
 
 func (this *OneWayTcpClient) Close() error {
-	oneWayClientSendLock.Lock()
-	defer oneWayClientSendLock.Unlock()
-
 	if this.conn == nil {
 		return nil
 	}
