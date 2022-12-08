@@ -8,6 +8,7 @@ test:
 	go test ./... -cover
 
 package:
+	go mod tidy
 	go mod download -x
 	go build ./...
 

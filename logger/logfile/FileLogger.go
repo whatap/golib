@@ -2,7 +2,6 @@ package logfile
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"math"
 	"os"
@@ -117,6 +116,9 @@ func (this *FileLogger) GetLogFile() *os.File {
 func (this *FileLogger) GetLogFilePath() string {
 	return filepath.Join(this.conf.homePath, this.logfile.Name())
 }
+func (this *FileLogger) SetLevel(lv int) {
+	this.conf.level = lv
+}
 
 func (this *FileLogger) run() {
 	this.last = dateutil.Now()
@@ -192,12 +194,7 @@ func (this *FileLogger) openFile() {
 		//fmt.Println("Logger open file", this.logfile)
 
 		// 로거를 파일로그로 변경
-		if this.conf.IsStdout {
-			multi := io.MultiWriter(this.logfile, os.Stdout)
-			this.myLog.SetOutput(multi)
-		} else {
-			this.myLog.SetOutput(this.logfile)
-		}
+		this.myLog.SetOutput(this.logfile)
 		this.myLog.SetFlags(log.Ldate | log.Ltime)
 
 		this.myLog.Println("")
@@ -314,7 +311,11 @@ func (this *FileLogger) println(id, message string) {
 	if this.checkOk(id, this.conf.cacheInterval) == false {
 		return
 	}
-	this.myLog.Println(this.build(id, message))
+	str := this.build(id, message)
+	this.myLog.Println(str)
+	if this.conf.IsStdout {
+		fmt.Println(str)
+	}
 }
 
 func (this *FileLogger) build(id, message string) string {
@@ -573,4 +574,6 @@ func (this *FileLogger) ApplyConfig(conf config.Config) {
 	this.conf.rotationEnabled = conf.GetBoolean("log_rotation_enabled", true)
 	this.conf.keepDays = int(conf.GetInt("log_keep_days", 7))
 	this.conf.cacheInterval = int(conf.GetInt("_log_interval", 10))
+	this.conf.level = logger.LogLevel(conf.GetValueDef("log_level", "warn"))
+	this.conf.IsStdout = conf.GetBoolean("log_stdout_enabled", false)
 }

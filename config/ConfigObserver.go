@@ -31,32 +31,3 @@ func (this *ConfigObserver) Run(conf Config) {
 		v.ApplyConfig(conf)
 	}
 }
-
-// type Config interface {
-// 	GetLong(k string, def int64) int64
-// }
-
-// type Runnable interface {
-// 	Run()
-// }
-
-// var observer map[string]Runnable = make(map[string]Runnable)
-
-// func AddConfObserver(cls string, run Runnable) {
-// 	//fmt.Println("Add=", cls)
-// 	observer[cls] = run
-// }
-// func RunConfObserver() {
-// 	defer func() {
-// 		if r := recover(); r != nil {
-// 			logutil.Println("WA10500"," Recover", r)
-// 		}
-// 	}()
-
-// 	//fmt.Println("Run=")
-
-// 	for _, v := range observer {
-// 		//fmt.Println("Run=", k)
-// 		v.Run()
-// 	}
-// }

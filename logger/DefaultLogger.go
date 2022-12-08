@@ -15,6 +15,10 @@ func NewDefaultLogger() *DefaultLogger {
 	log.SetFlags(log.Ldate | log.Ltime)
 	return p
 }
+
+func (this *DefaultLogger) SetLevel(lv int) {
+	this.Level = lv
+}
 func (this *DefaultLogger) Errorf(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
 	log.Println("[Error] ", s)
@@ -24,35 +28,35 @@ func (this *DefaultLogger) Error(args ...interface{}) {
 	log.Println("[Error] ", s)
 }
 func (this *DefaultLogger) Warnf(format string, args ...interface{}) {
-	if this.Level <= LOG_LEVEL_WARN {
+	if this.Level > LOG_LEVEL_WARN {
 		return
 	}
 	s := fmt.Sprintf(format, args...)
 	log.Println("[Warn] ", s)
 }
 func (this *DefaultLogger) Warn(args ...interface{}) {
-	if this.Level <= LOG_LEVEL_WARN {
+	if this.Level > LOG_LEVEL_WARN {
 		return
 	}
 	s := fmt.Sprintln(args...)
 	log.Println("[Warn] ", s)
 }
 func (this *DefaultLogger) Infof(format string, args ...interface{}) {
-	if this.Level <= LOG_LEVEL_INFO {
+	if this.Level > LOG_LEVEL_INFO {
 		return
 	}
 	s := fmt.Sprintf(format, args...)
 	log.Println("[Info] ", s)
 }
 func (this *DefaultLogger) Info(args ...interface{}) {
-	if this.Level <= LOG_LEVEL_INFO {
+	if this.Level > LOG_LEVEL_INFO {
 		return
 	}
 	s := fmt.Sprintln(args...)
 	log.Println("[Info] ", s)
 }
 func (this *DefaultLogger) Infoln(args ...interface{}) {
-	if this.Level <= LOG_LEVEL_INFO {
+	if this.Level > LOG_LEVEL_INFO {
 		return
 	}
 	s := fmt.Sprintln(args...)
@@ -67,16 +71,10 @@ func (this *DefaultLogger) Println(id string, args ...interface{}) {
 	log.Println(id, s)
 }
 func (this *DefaultLogger) Debugf(format string, args ...interface{}) {
-	if this.Level <= LOG_LEVEL_DEBUG {
-		return
-	}
 	s := fmt.Sprintf(format, args...)
 	log.Println("[Debug] ", s)
 }
 func (this *DefaultLogger) Debug(args ...interface{}) {
-	if this.Level <= LOG_LEVEL_DEBUG {
-		return
-	}
 	s := fmt.Sprintln(args...)
 	log.Println("[Debug] ", s)
 }

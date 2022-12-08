@@ -8,6 +8,9 @@ const ()
 //go:generate mockery --name Config --case underscore --inpackage
 type Config interface {
 	ApplyDefault()
+	GetConfFile() string
+	Destroy()
+	GetKeys() []string
 	GetValue(key string) string
 	GetValueDef(key, def string) string
 	GetBoolean(key string, def bool) bool

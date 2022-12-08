@@ -195,6 +195,17 @@ func (_m *MockConfig) ToString() string {
 	return r0
 }
 
+func (_m *MockConfig) Destroy() {
+}
+
+func (_m *MockConfig) GetConfFile() string {
+	return ""
+}
+
+func (_m *MockConfig) GetKeys() []string {
+	return make([]string, 0)
+}
+
 type mockConstructorTestingTNewMockConfig interface {
 	mock.TestingT
 	Cleanup(func())

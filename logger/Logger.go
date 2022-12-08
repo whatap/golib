@@ -1,5 +1,9 @@
 package logger
 
+import (
+	"strings"
+)
+
 const (
 	LOG_LEVEL_ERROR = 0
 	LOG_LEVEL_WARN  = 1
@@ -8,6 +12,8 @@ const (
 )
 
 type Logger interface {
+	// Set Level
+	SetLevel(lv int)
 	// Errorf logs an error message, patterned after log.Printf.
 	Errorf(format string, args ...interface{})
 	// Error logs an error message, patterned after log.Print.
@@ -33,6 +39,7 @@ type Logger interface {
 
 type EmptyLogger struct{}
 
+func (el *EmptyLogger) SetLevel(lv int)                                      {}
 func (el *EmptyLogger) Errorf(format string, args ...interface{})            {}
 func (el *EmptyLogger) Error(args ...interface{})                            {}
 func (el *EmptyLogger) Warnf(format string, args ...interface{})             {}
@@ -44,3 +51,17 @@ func (el *EmptyLogger) Debugf(format string, args ...interface{})            {}
 func (el *EmptyLogger) Debug(args ...interface{})                            {}
 func (el *EmptyLogger) Printf(id string, format string, args ...interface{}) {}
 func (el *EmptyLogger) Println(id string, args ...interface{})               {}
+
+func LogLevel(strLevel string) int {
+	lv := strings.ToLower(strLevel)
+	if lv == "error" {
+		return LOG_LEVEL_ERROR
+	} else if lv == "warn" {
+		return LOG_LEVEL_WARN
+	} else if lv == "info" {
+		return LOG_LEVEL_INFO
+	} else if lv == "debug" {
+		return LOG_LEVEL_DEBUG
+	}
+	return LOG_LEVEL_WARN
+}
