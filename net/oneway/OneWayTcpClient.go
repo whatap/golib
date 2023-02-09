@@ -68,7 +68,7 @@ func GetOneWayTcpClient(opts ...OneWayTcpClientOption) *OneWayTcpClient {
 	}
 	oneWayClient = newOneWayTcpClient(opts...)
 	if err := oneWayClient.Connect(); err != nil {
-		fmt.Println("GetOneWayTcpClient  Connect err", err)
+		oneWayClient.Log.Error("GetOneWayTcpClient  Connect err", err)
 
 	}
 	go oneWayClient.process()

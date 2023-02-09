@@ -31,6 +31,7 @@ import (
 	_ "github.com/whatap/golib/util/iputil"
 	_ "github.com/whatap/golib/util/keygen"
 	_ "github.com/whatap/golib/util/list"
+	_ "github.com/whatap/golib/util/mathutil"
 	_ "github.com/whatap/golib/util/openstack"
 	_ "github.com/whatap/golib/util/paramtext"
 	_ "github.com/whatap/golib/util/queue"

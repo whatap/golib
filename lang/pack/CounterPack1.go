@@ -111,7 +111,8 @@ type CounterPack1 struct {
 	ThreadPoolQueueSize int32
 
 	//public IntKeyLinkedMap<TxMeter> txcaller_oid_meter;
-	TxcallerOidMeter *hmap.IntKeyLinkedMap
+	TxcallerOidMeter  *hmap.IntKeyLinkedMap
+	TxcallerPOidMeter *hmap.LinkedMap
 	//public IntKeyLinkedMap<SqlMeter> sql_meter;
 	SqlMeter *hmap.IntKeyLinkedMap
 	//public IntKeyLinkedMap<HttpcMeter> httpc_meter;
@@ -133,6 +134,13 @@ type CounterPack1 struct {
 
 	// -1 초기화 안됨 , 0 old버전, 0.1이상 정상 수집
 	Metering float32
+
+	Resp90     int32
+	Resp95     int32
+	TimeSqrSum int64
+
+	// java transient , read, write 없음.
+	CollectIntervalMs int
 }
 
 func NewCounterPack1() *CounterPack1 {
@@ -300,6 +308,14 @@ func (this *CounterPack1) Write(out *io.DataOutputX) {
 
 	dout.WriteDecimal(int64(this.ApdexTotal))
 
+	this.writeTxcallerPOidMeter(dout)
+
+	//v2.2.1 2022.11.25
+	dout.WriteDecimal(int64(this.Resp90))
+	dout.WriteDecimal(int64(this.Resp95))
+	//
+	dout.WriteDecimal(this.TimeSqrSum)
+
 	out.WriteBlob(dout.ToByteArray())
 }
 
@@ -463,6 +479,14 @@ func (this *CounterPack1) Read(in *io.DataInputX) {
 	//		if (din.available() > 0) {
 	this.ApdexTotal = int32(din.ReadDecimal())
 	//		}
+
+	this.readTxcallerPOidMeter(din)
+
+	this.Resp90 = int32(din.ReadDecimal())
+	this.Resp95 = int32(din.ReadDecimal())
+
+	this.TimeSqrSum = din.ReadDecimal()
+
 }
 
 func (this *CounterPack1) writeShortArray(out *io.DataOutputX, v []int16) {
@@ -536,6 +560,32 @@ func (this *CounterPack1) readTxcallerGroupMeter(din *io.DataInputX) {
 	}
 }
 
+func (this *CounterPack1) readTxcallerPOidMeter(din *io.DataInputX) {
+	ver := int(din.ReadByte())
+	if ver == 0 {
+		return
+	}
+	count := 0
+	if ver <= 8 {
+		count = int(din.ReadDecimalLen(ver))
+	} else {
+		count = int(din.ReadDecimal())
+	}
+	this.TxcallerPOidMeter = hmap.NewLinkedMapDefault()
+
+	for i := 0; i < count; i++ {
+		m := new(TxMeter)
+		pcode := din.ReadDecimal()
+		oid := int32(din.ReadDecimal())
+		m.Time = din.ReadDecimal()
+		m.Count = int32(din.ReadDecimal())
+		m.Error = int32(din.ReadDecimal())
+		m.Acts = ReadShortArray(din, count)
+		m.Actx = int32(din.ReadDecimal())
+		this.TxcallerPOidMeter.Put(lang.NewPOID(pcode, oid), m)
+
+	}
+}
 func (this *CounterPack1) readTxcallerOkindMeterDeprecated(din *io.DataInputX) {
 	count := int(din.ReadDecimal())
 	for i := 0; i < count; i++ {
@@ -753,11 +803,31 @@ func (this *CounterPack1) writeTxcallerGroupMeter(dout *io.DataOutputX) {
 	}
 }
 
+func (this *CounterPack1) writeTxcallerPOidMeter(dout *io.DataOutputX) {
+	if this.TxcallerPOidMeter == nil {
+		dout.WriteDecimal(0)
+	} else {
+		dout.WriteDecimal(int64(this.TxcallerPOidMeter.Size()))
+		en := this.TxcallerPOidMeter.Entries()
+		for en.HasMoreElements() {
+			ent := en.NextElement().(*hmap.LinkedEntry)
+			m := ent.GetValue().(*TxMeter)
+			dout.WriteDecimal(ent.GetKey().(*lang.POID).PCode)
+			dout.WriteDecimal(int64(ent.GetKey().(*lang.POID).Oid))
+			dout.WriteDecimal(m.Time)
+			dout.WriteDecimal(int64(m.Count))
+			dout.WriteDecimal(int64(m.Error))
+			dout.WriteDecimal(int64(m.Actx))
+		}
+	}
+}
+
 type TxMeter struct {
 	Time  int64
 	Count int32
 	Error int32
 	Actx  int32
+	Acts  []int16
 }
 
 func NewTxMeter() *TxMeter {
@@ -789,4 +859,13 @@ func NewSqlMeter() *SqlMeter {
 }
 func (this *SqlMeter) ToString() string {
 	return fmt.Sprintln("SqlMeter [fetch_count=", this.FetchCount, ", fetch_time=", this.FetchTime, "]", this.TxMeter.ToString())
+}
+
+func ReadShortArray(din *io.DataInputX, sz int) []int16 {
+	len := int(din.ReadByte())
+	arr := make([]int16, sz) // sz는 최대 사이즈, 0인경우가 있음
+	for i := 0; i < len; i++ {
+		arr[i] = din.ReadShort()
+	}
+	return arr
 }

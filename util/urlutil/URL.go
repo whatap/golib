@@ -30,14 +30,66 @@ func NewURL(url string) *URL {
 
 	return p
 }
+func (this *URL) process1() {
+	if u, err := url.Parse(this.Url); err == nil {
+		this.Protocol = u.Scheme
+		this.Host = u.Host
+		this.RawPort = u.Port()
+		if this.RawPort == "" {
+			if strings.ToLower(this.Protocol) == "https" {
+				this.Port = 443
+			} else {
+				this.Port = 80
+			}
+		} else {
+			this.Port, _ = strconv.Atoi(this.RawPort)
+		}
+		pos := strings.LastIndex(u.Path, "/")
+		if pos > -1 {
+			this.Path = string(u.Path[pos:])
+		}
 
+		this.Path = u.Path
+		if this.Path == "" {
+			this.Path = "/"
+		}
+		this.Query = u.RawQuery
+
+		// Path, Query URLDecode추가 (net/url)
+		this.RawPath = this.Path
+		this.Path, err = url.PathUnescape(this.RawPath)
+		if err != nil {
+			this.Path = this.RawPath
+		}
+		this.RawQuery = this.Query
+		this.Query, err = url.QueryUnescape(this.RawQuery)
+		if err != nil {
+			this.Query = this.RawQuery
+		}
+
+	} else {
+
+	}
+}
 func (this *URL) process() {
 	var tmp string
 	var pos int
 	var err error
 
+	// query 먼저 분리
+	var urlStr string
+	if pos := strings.Index(this.Url, "?"); pos > -1 {
+		this.Query = string(this.Url[pos+1:])
+		urlStr = string(this.Url[0:pos])
+	} else {
+		urlStr = this.Url
+	}
+	if pos := strings.LastIndex(urlStr, "/"); pos > -1 {
+		this.File = string(urlStr[pos:])
+	}
+
 	// Protocol
-	tmp = this.Url
+	tmp = urlStr
 	pos = strings.Index(tmp, "://")
 	if pos > -1 {
 		this.Protocol = tmp[0:pos]
@@ -57,7 +109,11 @@ func (this *URL) process() {
 			this.Port, _ = strconv.Atoi(this.Host[pos+1:])
 			this.Host = this.Host[0:pos]
 		} else {
-			this.Port = 80
+			if this.Protocol == "https" {
+				this.Port = 443
+			} else {
+				this.Port = 80
+			}
 		}
 
 	} else {
@@ -72,13 +128,13 @@ func (this *URL) process() {
 	// Path, File, Query
 	pos = strings.Index(tmp, "?")
 	if pos > -1 {
-		this.File = tmp
 		this.Path = tmp[0:pos]
-		this.Query = tmp[pos+1:]
+		//this.File = tmp
+		//this.Query = tmp[pos+1:]
 	} else {
 		this.Path = tmp
-		this.File = tmp
-		this.Query = ""
+		//this.File = tmp
+		//this.Query = ""
 	}
 
 	// Path, Query URLDecode추가 (net/url)
