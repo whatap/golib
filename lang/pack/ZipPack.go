@@ -56,31 +56,29 @@ func (this *ZipPack) Read(din *io.DataInputX) {
 //		return this;
 //	}
 
-func (this *ZipPack) SetRecords(items []*AbstractPack) *ZipPack {
+func (this *ZipPack) SetRecords(items []Pack) *ZipPack {
 	this.RecountCount = len(items)
 	o := io.NewDataOutputX()
 	for _, it := range items {
-		it.Write(o)
+		o = WritePack(o, it)
 	}
 	this.Records = o.ToByteArray()
 	return this
 }
 
-func (this *ZipPack) GetRecords() []*AbstractPack {
-	items := make([]*AbstractPack, 0)
+func (this *ZipPack) GetRecords() []Pack {
+	items := make([]Pack, 0)
 	if this.Records == nil {
 		return nil
 	}
 	in := io.NewDataInputX(this.Records)
 	for i := 0; i < this.RecountCount; i++ {
-		p := new(AbstractPack)
-		p.Read(in)
+		p := ReadPack(in)
 
-		p.Pcode = this.Pcode
-		p.Oid = this.Oid
-		// time은 자기 시간을 사용한다.
-		p.Okind = this.Okind
-		p.Onode = this.Onode
+		p.SetPCODE(this.Pcode)
+		p.SetOID(this.Oid)
+		p.SetOKIND(this.Okind)
+		p.SetONODE(this.Onode)
 
 		items = append(items, p)
 	}
