@@ -87,6 +87,19 @@ func Truncate(str string, length int) string {
 	}
 }
 
+func TruncateRune(str string, sz int) string {
+	if str == "" {
+		return str
+	}
+	sb := NewStringBuffer()
+	for i, ch := range str {
+		if i < sz {
+			sb.Append(string(ch))
+		}
+	}
+	return sb.ToString()
+}
+
 // TODO Tckenizer, Split 테스트 필요
 func Split(s, sep string) []string {
 	return strings.Split(s, sep)
@@ -126,7 +139,10 @@ func Substring(s string, from string, to string) string {
 // substring
 func SubstringN(s string, from string, to string, n int) []string {
 	defer func() {
-		recover()
+		// recover
+		if r := recover(); r != nil {
+			//fmt.Println("recover:", r, string(debug.Stack()))
+		}
 	}()
 	result := make([]string, 0)
 

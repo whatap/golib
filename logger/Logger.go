@@ -5,10 +5,10 @@ import (
 )
 
 const (
-	LOG_LEVEL_ERROR = 0
-	LOG_LEVEL_WARN  = 1
-	LOG_LEVEL_INFO  = 2
-	LOG_LEVEL_DEBUG = 3
+	LOG_LEVEL_ERROR = 3
+	LOG_LEVEL_WARN  = 2
+	LOG_LEVEL_INFO  = 1
+	LOG_LEVEL_DEBUG = 0
 )
 
 type Logger interface {

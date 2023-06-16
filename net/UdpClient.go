@@ -2,25 +2,27 @@
 package net
 
 import (
-	"bufio"
+	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"sync"
 	"time"
 
-	"github.com/whatap/go-api/config"
+	"github.com/whatap/golib/config"
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/lang/pack"
 	"github.com/whatap/golib/lang/pack/udp"
+	"github.com/whatap/golib/logger"
 	"github.com/whatap/golib/util/dateutil"
 )
 
 const (
 	UDP_READ_MAX                    = 64 * 1024
 	UDP_PACKET_BUFFER               = 64 * 1024
-	UDP_PACKET_BUFFER_CHUNKED_LIMIT = 48 * 1024
-	UDP_PACKET_CHANNEL_MAX          = 512
+	UDP_PACKET_BUFFER_CHUNKED_LIMIT = 63 * 1024
+	UDP_PACKET_CHANNEL_MAX          = 1024
 	UDP_PACKET_FLUSH_TIMEOUT        = 10 * 1000
 
 	UDP_PACKET_HEADER_SIZE = 9
@@ -34,19 +36,44 @@ const (
 	UDP_PACKET_SQL_MAX_SIZE = 32768
 )
 
+type UdpClientConfig struct {
+	Log            logger.Logger
+	ctx            context.Context
+	cancel         context.CancelFunc
+	Timeout        time.Duration
+	Debug          bool
+	NetUdpHost     string
+	NetUdpPort     int
+	Server         string
+	UseQueue       bool
+	ConfigObserver *config.ConfigObserver
+}
+
+func (udpConfig *UdpClientConfig) ApplyConfig(m map[string]string) {
+
+}
+
 type UdpClient struct {
 	addr       string
 	serverAddr *net.UDPAddr
 	localAddr  *net.UDPAddr
 
 	udp *net.UDPConn
-	wr  *bufio.Writer
 
 	sendCh       chan *UdpData
 	lastSendTime int64
 
 	lock sync.Mutex
-	conf *config.Config
+	conf *UdpClientConfig
+
+	lockCount     sync.Mutex
+	packCount     int
+	sendCount     int
+	flushErrCount int
+	errCount      int
+	chanCount     int
+
+	buffer bytes.Buffer
 }
 
 type UdpData struct {
@@ -67,8 +94,9 @@ func GetUdpClient() *UdpClient {
 	if udpClient != nil {
 		return udpClient
 	}
+
 	udpClient = new(UdpClient)
-	udpClient.conf = config.GetConfig()
+	udpClient.conf = new(UdpClientConfig)
 	udpClient.open()
 	udpClient.sendCh = make(chan *UdpData, UDP_PACKET_CHANNEL_MAX)
 
@@ -93,6 +121,10 @@ func GetUdpClient() *UdpClient {
 
 	go udpClient.receive()
 	go udpClient.process()
+	go udpClient.processRemain()
+
+	// DEBUG
+	//go udpClient.processMon()
 
 	return udpClient
 }
@@ -128,7 +160,6 @@ func (this *UdpClient) open() (ret bool) {
 
 	if udpConn, ok := conn.(*net.UDPConn); ok {
 		this.udp = udpConn
-		this.wr = bufio.NewWriterSize(this.udp, UDP_PACKET_BUFFER)
 		this.udp = udpConn
 		return false
 	}
@@ -138,7 +169,7 @@ func (this *UdpClient) open() (ret bool) {
 	return true
 }
 func (this *UdpClient) isOpen() bool {
-	return this.udp != nil && this.wr != nil
+	return this.udp != nil
 }
 
 func (this *UdpClient) GetLocalAddr() net.Addr {
@@ -147,7 +178,7 @@ func (this *UdpClient) GetLocalAddr() net.Addr {
 
 func (this *UdpClient) Send(p udp.UdpPack) {
 	dout := udp.WritePack(io.NewDataOutputX(), p)
-	this.sendQueue(p.GetPackType(), p.GetVersion(), dout.ToByteArray(), p.IsFlush())
+	this.sendByBuffer(&UdpData{p.GetPackType(), p.GetVersion(), dout.ToByteArray(), p.IsFlush()})
 	udp.ClosePack(p)
 }
 
@@ -161,81 +192,66 @@ func (this *UdpClient) SendRelay(p pack.Pack, flush bool) {
 		rp.Flush = flush
 		rp.Time = dateutil.SystemNow()
 		b := udp.ToBytesPack(rp)
-		this.sendQueue(rp.GetPackType(), rp.GetVersion(), b, flush)
+		this.sendByBuffer(&UdpData{rp.GetPackType(), rp.GetVersion(), b, flush})
 	}
 	udp.ClosePack(relayPack)
 }
 
-func (this *UdpClient) sendQueue(t uint8, ver int32, b []byte, flush bool) bool {
+func (this *UdpClient) process() {
+	for {
+		sendData := <-this.sendCh
+		this.lastSendTime = dateutil.Now()
+		if _, err := this.sendUDP(sendData); err != nil {
+			log.Println("[WA-GO-01005]", "Error. send by udp ", err)
+			// DEBUG add send count, err
+			this.AddCount(0, 0, 1, 0, 1, false)
+		} else {
+			// DEBUG add send count
+			this.AddCount(0, 0, 1, 0, 0, false)
+		}
+	}
+}
+func (this *UdpClient) processRemain() {
+	for {
+		if !this.isOpen() {
+			continue
+		}
+		select {
+		case <-time.After(1 * time.Second):
+			// 시간 비교하여 발송.
+			if this.buffer.Len() > 0 && dateutil.SystemNow()-this.lastSendTime > UDP_PACKET_FLUSH_TIMEOUT {
+				//fmt.Println(">>>>", "timeout flush")
+				this.sendBuffer()
+			}
+		}
+	}
+}
+
+func (this *UdpClient) processMon() {
+	for {
+		select {
+		case <-time.After(10 * time.Second):
+			//reset
+			//fmt.Printf(">>>>Udp t=%d, pack=%d, chan=%d, send=%d, ferr=%d, err=%d, chanlen=%d\n", this.lastSendTime, this.packCount, this.chanCount, this.sendCount, this.flushErrCount, this.errCount, len(this.sendCh))
+			this.AddCount(0, 0, 0, 0, 0, true)
+		}
+	}
+}
+
+func (this *UdpClient) sendByBuffer(sendData *UdpData) {
 	this.lock.Lock()
 	defer func() {
 		if r := recover(); r != nil {
 			if this.conf.Debug {
-				log.Println("[WA-GO-01003]", "Recover UdpClient.sendQueue ", r)
+				log.Println("[WA-GO-01007-01]", "Recover UdpClient.sendBuffer ", r)
 			}
 		}
 		this.lock.Unlock()
 	}()
-	if this.isOpen() {
-		if len(b) >= UDP_PACKET_BUFFER {
-			log.Println("[WA-GO-01003-01]", "cannot send to channel, big data ")
-			return false
-		}
-		buff := make([]byte, len(b))
-		copy(buff, b)
-		this.sendCh <- &UdpData{t, ver, buff, flush}
-		return true
-	} else {
-		if this.conf.Debug {
-			log.Println("[WA-GO-01004]", "cannot send to channel, before udp connection is established.")
-		}
-		return false
-	}
-}
 
-func (this *UdpClient) process() {
-	for {
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					if this.conf.Debug {
-						log.Println("[WA-GO-01005]", "Recover UdpClient.process ", r)
-					}
-				}
-			}()
-			select {
-			case sendData := <-this.sendCh:
-				this.send(sendData)
-			default:
-				if !this.isOpen() {
-					return
-				}
-				time.Sleep(1 * time.Second)
-				// 시간 비교하여 발송.
-				if this.wr != nil {
-					if this.wr.Buffered() > 0 && dateutil.SystemNow()-this.lastSendTime > UDP_PACKET_FLUSH_TIMEOUT {
-						this.lastSendTime = dateutil.Now()
-						if err := this.wr.Flush(); err != nil {
-							if this.conf.Debug {
-								log.Println("[WA-GO-01006]", "Error. Flush bufferd writer ", err)
-							}
-							this.Close()
-							return
-						}
-					}
-				}
-			}
-		}()
-	}
-}
-func (this *UdpClient) send(sendData *UdpData) {
-	defer func() {
-		if r := recover(); r != nil {
-			if this.conf.Debug {
-				log.Println("[WA-GO-01007]", "Recover UdpClient.send ", r)
-			}
-		}
-	}()
+	// DEBUG add pack count
+	this.AddCount(1, 0, 0, 0, 0, false)
+
 	if !this.isOpen() {
 		if this.conf.Debug {
 			log.Println("[WA-GO-01008]", "Before a UDP connection is established.")
@@ -255,34 +271,65 @@ func (this *UdpClient) send(sendData *UdpData) {
 	out.WriteIntBytes(sendData.Data)
 	sendBytes := out.ToByteArray()
 
-	if this.wr.Buffered() > 0 && this.wr.Buffered()+len(sendBytes) > UDP_PACKET_BUFFER_CHUNKED_LIMIT {
-		this.lastSendTime = dateutil.Now()
-		if err := this.wr.Flush(); err != nil {
-			if this.conf.Debug {
-				log.Println("[WA-GO-01009]", "Error. Flush bufferd writer", err)
-			}
-			this.Close()
-			return
+	if this.buffer.Len() > 0 && this.buffer.Len()+len(sendBytes) > UDP_PACKET_BUFFER_CHUNKED_LIMIT {
+		// add chanCount
+		this.AddCount(0, 1, 0, 0, 0, false)
+
+		data := make([]byte, this.buffer.Len())
+		copy(data, this.buffer.Bytes())
+		select {
+		case this.sendCh <- &UdpData{Data: data}:
+		case <-time.After(5 * time.Second):
 		}
+		this.buffer.Reset()
 	}
-	if _, err := this.wr.Write(sendBytes); err != nil {
+	if _, err := this.buffer.Write(sendBytes); err != nil {
 		if this.conf.Debug {
-			log.Println("[WA-GO-01010]", "Error. Write to bufferd writer len=", len(sendBytes), ", err=", err)
+			log.Println("[WA-GO-01010-01]", "Error. Write to buffer len=", len(sendBytes), ", err=", err)
 		}
 		this.Close()
+		// DEBUG add write errCount,
+		this.AddCount(0, 0, 0, 0, 1, false)
 		return
 	}
 	// flush == true
-	if this.wr.Buffered() > 0 && sendData.Flush {
-		this.lastSendTime = dateutil.Now()
-		if err := this.wr.Flush(); err != nil {
-			if this.conf.Debug {
-				log.Println("[WA-GO-01011]", "Error. Flush bufferd writer ", fmt.Sprintf("type %T", err), err)
-			}
-			this.Close()
-			return
+	if this.buffer.Len() > 0 && sendData.Flush {
+		// add chanCount
+		this.AddCount(0, 1, 0, 0, 0, false)
+
+		data := make([]byte, this.buffer.Len())
+		copy(data, this.buffer.Bytes())
+		this.buffer.Reset()
+		select {
+		case this.sendCh <- &UdpData{Data: data}:
+		case <-time.After(5 * time.Second):
 		}
+
 	}
+}
+
+func (this *UdpClient) sendBuffer() {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	if this.buffer.Len() > 0 {
+		data := make([]byte, this.buffer.Len())
+		copy(data, this.buffer.Bytes())
+		this.buffer.Reset()
+		select {
+		case this.sendCh <- &UdpData{Data: data}:
+		case <-time.After(5 * time.Second):
+		}
+
+		// add chanCount
+		this.AddCount(0, 1, 0, 0, 0, false)
+	}
+}
+
+func (this *UdpClient) sendUDP(udpData *UdpData) (int, error) {
+	if this.isOpen() == false {
+		return 0, fmt.Errorf("udp disconnected")
+	}
+	return this.udp.Write(udpData.Data)
 }
 
 func (this *UdpClient) receive() {
@@ -335,14 +382,6 @@ func (this *UdpClient) Close() {
 			log.Println("[WA-GO-01014]", "Recover Close() ", r)
 		}
 	}()
-	if this.wr != nil {
-		this.wr.Reset(this.udp)
-	}
-	// if this.udp != nil {
-	// 	this.udp.Close()
-	// }
-	// this.udp = nil
-	// this.wr = nil
 }
 func (this *UdpClient) Shutdown() {
 	if this.udp != nil {
@@ -353,11 +392,30 @@ func (this *UdpClient) Shutdown() {
 		close(this.sendCh)
 		// send all remaining data
 		for sendData := range this.sendCh {
-			this.send(sendData)
+			this.sendUDP(sendData)
 		}
 		this.Close()
 		this.udp.Close()
 		this.udp = nil
+	}
+}
+
+func (this *UdpClient) AddCount(packCount, chanCount, sendCount, flushErrCount, errCount int, reset bool) {
+	this.lockCount.Lock()
+	defer this.lockCount.Unlock()
+	if reset {
+		this.packCount = packCount
+		this.chanCount = chanCount
+		this.sendCount = sendCount
+		this.flushErrCount = flushErrCount
+		this.errCount = errCount
+
+	} else {
+		this.packCount += packCount
+		this.chanCount += chanCount
+		this.sendCount += sendCount
+		this.flushErrCount += flushErrCount
+		this.errCount += errCount
 	}
 }
 

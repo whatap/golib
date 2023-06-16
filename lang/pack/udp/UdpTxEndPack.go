@@ -84,32 +84,108 @@ func (this *UdpTxEndPack) SetMcallerUrlHash(v int32) {
 }
 func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
-
-	dout.WriteTextShortLength(this.Host)
-	dout.WriteTextShortLength(this.Uri)
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
-	dout.WriteTextShortLength(this.McallerSpec)
-	dout.WriteTextShortLength(this.McallerUrl)
-	dout.WriteTextShortLength(this.McallerPoidKey)
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
-
+	if this.Ver > 50000 {
+		// Golang
+		dout.WriteTextShortLength(this.Host)
+		dout.WriteTextShortLength(this.Uri)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+		dout.WriteTextShortLength(this.McallerSpec)
+		dout.WriteTextShortLength(this.McallerUrl)
+		dout.WriteTextShortLength(this.McallerPoidKey)
+		if this.Ver >= 50100 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		dout.WriteTextShortLength(this.Host)
+		dout.WriteTextShortLength(this.Uri)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mcaller)))
+	} else if this.Ver > 20000 {
+		// Python
+		dout.WriteTextShortLength(this.Host)
+		dout.WriteTextShortLength(this.Uri)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+		dout.WriteTextShortLength(this.McallerSpec)
+		dout.WriteTextShortLength(this.McallerUrl)
+		dout.WriteTextShortLength(this.McallerPoidKey)
+	} else {
+		// PHP
+		if this.Ver >= 10102 {
+			dout.WriteTextShortLength(this.Host)
+			dout.WriteTextShortLength(this.Uri)
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+			dout.WriteTextShortLength(this.McallerSpec)
+			dout.WriteTextShortLength(this.McallerUrl)
+			dout.WriteTextShortLength(this.McallerPoidKey)
+		}
+	}
 }
 
 func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 	this.AbstractPack.Read(din)
-	this.Host = din.ReadTextShortLength()
-	this.Uri = din.ReadTextShortLength()
-	this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
-	this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
-	this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
-	this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
-	this.McallerSpec = din.ReadTextShortLength()
-	this.McallerUrl = din.ReadTextShortLength()
-	this.McallerPoidKey = din.ReadTextShortLength()
-	this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+	if this.Ver > 50000 {
+		// Golang
+		this.Host = din.ReadTextShortLength()
+		this.Uri = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerSpec = din.ReadTextShortLength()
+		this.McallerUrl = din.ReadTextShortLength()
+		this.McallerPoidKey = din.ReadTextShortLength()
+
+		if this.Ver >= 50100 {
+			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		this.Host = din.ReadTextShortLength()
+		this.Uri = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.Mcaller = stringutil.ParseInt64(din.ReadTextShortLength())
+	} else if this.Ver > 20000 {
+		// Python
+		this.Host = din.ReadTextShortLength()
+		this.Uri = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerSpec = din.ReadTextShortLength()
+		this.McallerUrl = din.ReadTextShortLength()
+		this.McallerPoidKey = din.ReadTextShortLength()
+	} else {
+		// PHP
+		if this.Ver >= 10102 {
+			this.Host = din.ReadTextShortLength()
+			this.Uri = din.ReadTextShortLength()
+			this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.McallerSpec = din.ReadTextShortLength()
+			this.McallerUrl = din.ReadTextShortLength()
+			this.McallerPoidKey = din.ReadTextShortLength()
+		}
+	}
 }
 func (this *UdpTxEndPack) Process() {
 	if this.Host != "" && this.Uri != "" {
@@ -119,7 +195,26 @@ func (this *UdpTxEndPack) Process() {
 			this.ServiceURL = urlutil.NewURL(this.Host + "/" + this.Uri)
 		}
 	}
-	if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
-		this.McallerUrlHash = int32(ret)
+	if this.Ver > 50000 {
+		// Golang
+		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+			this.McallerUrlHash = int32(ret)
+		}
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+			this.McallerUrlHash = int32(ret)
+		}
+	} else {
+		// PHP
+		if this.Ver >= 10102 {
+			if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+				this.McallerUrlHash = int32(ret)
+			}
+		}
 	}
 }

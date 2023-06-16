@@ -7,7 +7,7 @@ import (
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/util/hmap"
 	//	"github.com/whatap/golib/util/stringutil"
-	//"github.com/whatap/golib/util/logutil"
+	//"gitlab.whatap.io/go/agent/util/logutil"
 )
 
 // StatServicePack -> TransactionRec

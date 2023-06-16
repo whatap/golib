@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	//"log"
-
 	"os"
 	"os/exec"
 
@@ -15,10 +14,9 @@ import (
 	//"runtime/debug"
 	"runtime"
 	"strconv"
-
 	"strings"
 
-	//"github.com/whatap/golib/util/logutil"
+	//"gitlab.whatap.io/go/agent/util/logutil"
 	"github.com/whatap/golib/util/stringutil"
 )
 

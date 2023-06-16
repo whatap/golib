@@ -1,16 +1,25 @@
+GO=go
 
 build: package test
 
 generate:
-	go generate ./...
+	$(GO) generate ./...
 
 test:
-	go test ./... -cover
+	$(GO) test ./... -cover
 
 package:
-	go mod tidy
-	go mod download -x
-	go build ./...
+	$(GO) mod tidy
+	$(GO) mod download -x
+	$(GO) build ./...
 
 clean :
-	go clean 
+	$(GO) clean -modcache
+	$(GO) clean -testcache
+	$(GO) clean -cache
+	$(GO) clean
+	rm -rf go.sum
+
+version:
+	$(GO) version
+	$(GO) env

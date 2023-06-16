@@ -107,14 +107,45 @@ func (this *UdpTxStartEndPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(this.UAgent)
 	dout.WriteTextShortLength(this.Ref)
 	dout.WriteTextShortLength(this.WClientId)
-	dout.WriteTextShortLength(this.HttpMethod)
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
-	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
-	dout.WriteTextShortLength(this.McallerSpec)
-	dout.WriteTextShortLength(this.McallerUrl)
-	dout.WriteTextShortLength(this.McallerPoidKey)
+	if this.Ver > 50000 {
+		// Golang
+		dout.WriteTextShortLength(this.HttpMethod)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+		dout.WriteTextShortLength(this.McallerSpec)
+		dout.WriteTextShortLength(this.McallerUrl)
+		dout.WriteTextShortLength(this.McallerPoidKey)
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		dout.WriteTextShortLength(this.IsStaticContents)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mcaller)))
+	} else if this.Ver > 20000 {
+		// Python
+		dout.WriteTextShortLength(this.IsStaticContents)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+		dout.WriteTextShortLength(this.McallerSpec)
+		dout.WriteTextShortLength(this.McallerUrl)
+		dout.WriteTextShortLength(this.McallerPoidKey)
+	} else {
+		// PHP
+		dout.WriteTextShortLength(this.HttpMethod)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+		dout.WriteTextShortLength(this.McallerSpec)
+		dout.WriteTextShortLength(this.McallerUrl)
+		dout.WriteTextShortLength(this.McallerPoidKey)
+	}
 }
 
 func (this *UdpTxStartEndPack) Read(din *io.DataInputX) {
@@ -127,14 +158,45 @@ func (this *UdpTxStartEndPack) Read(din *io.DataInputX) {
 	this.Ref = din.ReadTextShortLength()
 	this.WClientId = din.ReadTextShortLength()
 
-	this.HttpMethod = din.ReadTextShortLength()
-	this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
-	this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
-	this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
-	this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
-	this.McallerSpec = din.ReadTextShortLength()
-	this.McallerUrl = din.ReadTextShortLength()
-	this.McallerPoidKey = din.ReadTextShortLength()
+	if this.Ver > 50000 {
+		// Golang
+		this.HttpMethod = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerSpec = din.ReadTextShortLength()
+		this.McallerUrl = din.ReadTextShortLength()
+		this.McallerPoidKey = din.ReadTextShortLength()
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		this.IsStaticContents = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.Mcaller = stringutil.ParseInt64(din.ReadTextShortLength())
+	} else if this.Ver > 20000 {
+		// Python
+		this.IsStaticContents = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerSpec = din.ReadTextShortLength()
+		this.McallerUrl = din.ReadTextShortLength()
+		this.McallerPoidKey = din.ReadTextShortLength()
+	} else {
+		// PHP
+		this.HttpMethod = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerSpec = din.ReadTextShortLength()
+		this.McallerUrl = din.ReadTextShortLength()
+		this.McallerPoidKey = din.ReadTextShortLength()
+	}
 }
 
 func (this *UdpTxStartEndPack) Process() {
@@ -150,7 +212,26 @@ func (this *UdpTxStartEndPack) Process() {
 		this.IsStatic = b
 	}
 
-	if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
-		this.McallerUrlHash = int32(ret)
+	if this.Ver > 50000 {
+		// Golang
+		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+			this.McallerUrlHash = int32(ret)
+		}
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+			this.McallerUrlHash = int32(ret)
+		}
+	} else {
+		// PHP
+		if this.Ver >= 10102 {
+			if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+				this.McallerUrlHash = int32(ret)
+			}
+		}
 	}
 }

@@ -156,16 +156,29 @@ var udpRelayPool = sync.Pool{
 		return NewUdpRelayPack()
 	},
 }
-
-var udpConfigPool = sync.Pool{
+var udpActiveStackPool = sync.Pool{
 	New: func() interface{} {
-		return NewUdpConfigPack()
+		return NewUdpActiveStackPack()
 	},
 }
-
+var udpTxParamPool = sync.Pool{
+	New: func() interface{} {
+		return NewUdpTxParamPack()
+	},
+}
 var udpActiveStatsPool = sync.Pool{
 	New: func() interface{} {
 		return NewUdpActiveStatsPack()
+	},
+}
+var udpDBConPool = sync.Pool{
+	New: func() interface{} {
+		return NewUdpDBConPoolPack()
+	},
+}
+var udpConfigPool = sync.Pool{
+	New: func() interface{} {
+		return NewUdpConfigPack()
 	},
 }
 
@@ -226,20 +239,36 @@ func CreatePack(t uint8, ver int32) UdpPack {
 		p.Ver = ver
 		return p
 		//return NewUdpTxDbcPackVer(ver)
-	case CONFIG_INFO:
-		p := udpConfigPool.Get().(*UdpConfigPack)
-		p.Ver = ver
-		return p
-		//return NewUdpConfigPackVer(ver)
 	case RELAY_PACK:
 		p := udpRelayPool.Get().(*UdpRelayPack)
 		p.Ver = ver
 		return p
 		//return NewUdpRelayPackVer(ver)
+	case ACTIVE_STACK:
+		p := udpActiveStackPool.Get().(*UdpActiveStackPack)
+		p.Ver = ver
+		return p
+		//return NewUdpActiveStackPackVer(ver)
+	case TX_PARAM:
+		p := udpTxParamPool.Get().(*UdpTxParamPack)
+		p.Ver = ver
+		return p
+		//return NewUdpTxParamPackVer(ver)
 	case ACTIVE_STATS:
 		p := udpActiveStatsPool.Get().(*UdpActiveStatsPack)
 		p.Ver = ver
 		return p
+		//return NewUdpActiveStatsPackVer(ver)
+	case DBCONN_POOL:
+		p := udpDBConPool.Get().(*UdpDBConPoolPack)
+		p.Ver = ver
+		return p
+		//return NewUdpDBConPoolPackVer(ver)
+	case CONFIG_INFO:
+		p := udpConfigPool.Get().(*UdpConfigPack)
+		p.Ver = ver
+		return p
+		//return NewUdpConfigPackVer(ver)
 	}
 	return nil
 }
@@ -254,6 +283,8 @@ func ClosePack(p UdpPack) {
 		udpEndPool.Put(p)
 	case TX_SQL:
 		udpSqlPool.Put(p)
+	case TX_SQL_PARAM:
+		udpSqlParamPool.Put(p)
 	case TX_HTTPC:
 		udpHttpcPool.Put(p)
 	case TX_ERROR:
@@ -268,8 +299,16 @@ func ClosePack(p UdpPack) {
 		udpDbcPool.Put(p)
 	case RELAY_PACK:
 		udpRelayPool.Put(p)
+	case ACTIVE_STACK:
+		udpActiveStackPool.Put(p)
+	case TX_PARAM:
+		udpTxParamPool.Put(p)
 	case ACTIVE_STATS:
 		udpActiveStatsPool.Put(p)
+	case DBCONN_POOL:
+		udpDBConPool.Put(p)
+	case CONFIG_INFO:
+		udpConfigPool.Put(p)
 	}
 }
 

@@ -54,6 +54,17 @@ func (this *UdpTxSecureMessagePack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(this.Hash)
 	dout.WriteTextShortLength(this.Value)
 	dout.WriteTextShortLength(this.Desc)
+	if this.Ver > 50000 {
+		// Golang
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+	}
 }
 
 func (this *UdpTxSecureMessagePack) Read(din *io.DataInputX) {
@@ -62,8 +73,30 @@ func (this *UdpTxSecureMessagePack) Read(din *io.DataInputX) {
 	this.Hash = din.ReadTextShortLength()
 	this.Value = din.ReadTextShortLength()
 	this.Desc = din.ReadTextShortLength()
+	if this.Ver > 50000 {
+		// Golang
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+	}
 }
 func (this *UdpTxSecureMessagePack) Process() {
+	if this.Ver > 50000 {
+		// Golang
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+	}
 }
 
 func ParseParameter(m map[string][]string, maxCount, keyMaxSize, valueMaxSize int) string {

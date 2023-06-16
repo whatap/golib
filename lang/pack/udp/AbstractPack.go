@@ -41,8 +41,32 @@ func (this *AbstractPack) Write(dout *io.DataOutputX) {
 	dout.WriteInt(this.Elapsed)
 	dout.WriteLong(this.Cpu)
 	dout.WriteLong(this.Mem)
-	dout.WriteInt(this.Pid)
-	dout.WriteLong(this.ThreadId)
+	if this.Ver > 50000 {
+		// Golang
+		dout.WriteInt(this.Pid)
+		dout.WriteLong(this.ThreadId)
+	} else if this.Ver > 40000 {
+		// Batch
+		dout.WriteInt(this.Pid)
+		dout.WriteLong(this.ThreadId)
+	} else if this.Ver > 30000 {
+		// Dotnet
+		dout.WriteInt(this.Pid)
+		dout.WriteLong(this.ThreadId)
+	} else if this.Ver > 20000 {
+		// Python
+		dout.WriteInt(this.Pid)
+		dout.WriteLong(this.ThreadId)
+	} else {
+		// PHP
+		if this.Ver >= 10101 {
+			dout.WriteInt(this.Pid)
+		}
+		if this.Ver >= 10104 {
+			dout.WriteLong(this.ThreadId)
+		}
+	}
+
 }
 func (this *AbstractPack) Read(din *io.DataInputX) {
 	this.Txid = din.ReadLong()
@@ -50,8 +74,32 @@ func (this *AbstractPack) Read(din *io.DataInputX) {
 	this.Elapsed = din.ReadInt()
 	this.Cpu = din.ReadLong()
 	this.Mem = din.ReadLong()
-	this.Pid = din.ReadInt()
-	this.ThreadId = din.ReadLong()
+
+	if this.Ver > 50000 {
+		// Golang
+		this.Pid = din.ReadInt()
+		this.ThreadId = din.ReadLong()
+	} else if this.Ver > 40000 {
+		// Batch
+		this.Pid = din.ReadInt()
+		this.ThreadId = din.ReadLong()
+	} else if this.Ver > 30000 {
+		// Dotnet
+		this.Pid = din.ReadInt()
+		this.ThreadId = din.ReadLong()
+	} else if this.Ver > 20000 {
+		// Python
+		this.Pid = din.ReadInt()
+		this.ThreadId = din.ReadLong()
+	} else {
+		// PHP
+		if this.Ver >= 10101 {
+			this.Pid = din.ReadInt()
+		}
+		if this.Ver >= 10104 {
+			this.ThreadId = din.ReadLong()
+		}
+	}
 }
 
 // oid 설정   pack interface

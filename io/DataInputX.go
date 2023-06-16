@@ -1,4 +1,4 @@
-//github.com/whatap/golib/io
+// github.com/whatap/golib/io
 package io
 
 import (
@@ -50,14 +50,14 @@ func (in *DataInputX) ReadBytes(sz int32) []byte {
 		for nbytesleft > 0 {
 			nbytethistime, err := in.tcp.Read(buff[nbytesuntilnow:])
 			if err != nil {
-				panic(fmt.Sprintf("WA003 Read Error err=%s, ", err.Error()))
+				panic(fmt.Sprintf("WA003 Read Error size=%d, left=%d, elapsed=%d, err=%s,", sz, nbytesleft, nbytesuntilnow, err.Error()))
 			}
 			nbytesleft -= nbytethistime
 			nbytesuntilnow += nbytethistime
 		}
 	} else {
 		if _, err := in.buffer.Read(buff); err != nil {
-			panic(fmt.Sprintf("WA003-01 Read Error err=%s, ", err.Error()))
+			panic(fmt.Sprintf("WA003-01 Read Error size=%d, err=%s, ", sz, err.Error()))
 			return nil
 		}
 	}

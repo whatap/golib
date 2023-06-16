@@ -57,9 +57,29 @@ func (this *UdpTxSqlPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
 	dout.WriteTextShortLength(this.Dbc)
 	dout.WriteTextShortLength(this.Sql)
-	dout.WriteTextShortLength(this.ErrorType)
-	dout.WriteTextShortLength(this.ErrorMessage)
-	dout.WriteTextShortLength(this.Stack)
+
+	if this.Ver > 50000 {
+		// Golang
+		dout.WriteTextShortLength(this.ErrorType)
+		dout.WriteTextShortLength(this.ErrorMessage)
+		dout.WriteTextShortLength(this.Stack)
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		dout.WriteTextShortLength(this.ErrorType)
+		dout.WriteTextShortLength(this.ErrorMessage)
+		dout.WriteTextShortLength(this.Stack)
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+		if this.Ver >= 10105 {
+			dout.WriteTextShortLength(this.ErrorType)
+			dout.WriteTextShortLength(this.ErrorMessage)
+			dout.WriteTextShortLength(this.Stack)
+		}
+	}
 }
 
 func (this *UdpTxSqlPack) Read(din *io.DataInputX) {
@@ -68,19 +88,59 @@ func (this *UdpTxSqlPack) Read(din *io.DataInputX) {
 	this.Dbc = din.ReadTextShortLength()
 	this.Sql = din.ReadTextShortLength()
 
-	this.ErrorType = din.ReadTextShortLength()
-	this.ErrorMessage = din.ReadTextShortLength()
-	this.Stack = din.ReadTextShortLength()
+	if this.Ver > 50000 {
+		// Golang
+		this.ErrorType = din.ReadTextShortLength()
+		this.ErrorMessage = din.ReadTextShortLength()
+		this.Stack = din.ReadTextShortLength()
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		this.ErrorType = din.ReadTextShortLength()
+		this.ErrorMessage = din.ReadTextShortLength()
+		this.Stack = din.ReadTextShortLength()
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+		if this.Ver >= 10105 {
+			this.ErrorType = din.ReadTextShortLength()
+			this.ErrorMessage = din.ReadTextShortLength()
+			this.Stack = din.ReadTextShortLength()
+		}
+	}
 }
 
 func (this *UdpTxSqlPack) Process() {
-	if this.Dbc != "" {
-		p := paramtext.NewParamKVSeperate(this.Dbc, " ", "=")
-		this.Dbc = p.ToStringStr("password", "#")
-		p = paramtext.NewParamKVSeperate(this.Dbc, ";", "=")
-		this.Dbc = p.ToStringStr("password", "#")
-	}
-	if len(this.Sql) >= UDP_PACKET_SQL_MAX_SIZE {
-		this.Sql = "[QUERY TOO LONG]\r\n" + this.Sql
+
+	if this.Ver > 50000 {
+		// Golang
+		if this.Dbc != "" {
+			p := paramtext.NewParamKVSeperate(this.Dbc, " ", "=")
+			this.Dbc = p.ToStringStr("password", "#")
+			p = paramtext.NewParamKVSeperate(this.Dbc, ";", "=")
+			this.Dbc = p.ToStringStr("password", "#")
+		}
+		if len(this.Sql) >= UDP_PACKET_SQL_MAX_SIZE {
+			this.Sql = "[QUERY TOO LONG]\r\n" + this.Sql
+		}
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+		if this.Dbc != "" {
+			p := paramtext.NewParamKVSeperate(this.Dbc, " ", "=")
+			this.Dbc = p.ToStringStr("password", "#")
+			p = paramtext.NewParamKVSeperate(this.Dbc, ";", "=")
+			this.Dbc = p.ToStringStr("password", "#")
+		}
+		if len(this.Sql) >= UDP_PACKET_SQL_MAX_SIZE {
+			this.Sql = "[QUERY TOO LONG]\r\n" + this.Sql
+		}
 	}
 }

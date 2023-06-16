@@ -5,7 +5,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/whatap/go-api/config"
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/lang"
 	"github.com/whatap/golib/lang/value"
@@ -147,9 +146,8 @@ func NewCounterPack1() *CounterPack1 {
 	p := new(CounterPack1)
 	p.Starttime, _ = strconv.ParseInt(os.Getenv("WHATAP.starttime"), 10, 64)
 	p.ActSvcSlice = make([]int16, 3)
-	p.ApType = config.GetConfig().AppType
 	p.ActiveStatKeys = []string{"method", "sql", "httpc", "dbc", "socket"}
-	p.ActiveStat = make([]int16, 0)
+	p.ActiveStat = make([]int16, 5)
 	return p
 }
 

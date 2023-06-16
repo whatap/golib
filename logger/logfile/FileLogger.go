@@ -297,7 +297,6 @@ func (this *FileLogger) Debug(args ...interface{}) {
 
 // 첫번째 인수는 무조건 String으로 ID 값을 넣어야 함( WA111 형식)
 // 해당 ID로 중복 확인.
-
 func (this *FileLogger) Printf(id string, format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
 	this.println(id, this.build(id, s))
@@ -343,7 +342,7 @@ func (this *FileLogger) checkOk(id string, sec int) bool {
 	return true
 }
 
-func (this *FileLogger) sysout(message string) {
+func (this *FileLogger) Sysout(message string) {
 	fmt.Println(message)
 }
 

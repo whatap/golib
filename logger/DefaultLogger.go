@@ -62,19 +62,31 @@ func (this *DefaultLogger) Infoln(args ...interface{}) {
 	s := fmt.Sprintln(args...)
 	log.Println("[Info] ", s)
 }
-func (this *DefaultLogger) Printf(id string, format string, args ...interface{}) {
-	s := fmt.Sprintf(format, args...)
-	log.Println(id, s)
-}
-func (this *DefaultLogger) Println(id string, args ...interface{}) {
-	s := fmt.Sprintln(args...)
-	log.Println(id, s)
-}
 func (this *DefaultLogger) Debugf(format string, args ...interface{}) {
+	if this.Level > LOG_LEVEL_DEBUG {
+		return
+	}
 	s := fmt.Sprintf(format, args...)
 	log.Println("[Debug] ", s)
 }
 func (this *DefaultLogger) Debug(args ...interface{}) {
+	if this.Level > LOG_LEVEL_DEBUG {
+		return
+	}
 	s := fmt.Sprintln(args...)
 	log.Println("[Debug] ", s)
+}
+
+// print log always
+func (this *DefaultLogger) Printf(id string, format string, args ...interface{}) {
+	s := fmt.Sprintf(format, args...)
+	log.Println(this.build(id, s))
+}
+func (this *DefaultLogger) Println(id string, args ...interface{}) {
+	s := fmt.Sprintln(args...)
+	log.Println(this.build(id, s))
+}
+
+func (this *DefaultLogger) build(id, message string) string {
+	return fmt.Sprint("[", id, "] ", message)
 }

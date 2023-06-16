@@ -85,7 +85,23 @@ func (this *UdpTxStartPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(stringutil.Truncate(this.UAgent, HTTP_UA_MAX_SIZE))
 	dout.WriteTextShortLength(stringutil.Truncate(this.Ref, HTTP_REF_MAX_SIZE))
 	dout.WriteTextShortLength(stringutil.Truncate(this.WClientId, HTTP_URI_MAX_SIZE))
-	dout.WriteTextShortLength(stringutil.Truncate(this.HttpMethod, HTTP_METHOD_MAX_SIZE))
+	if this.Ver > 50000 {
+		// Golang
+		dout.WriteTextShortLength(stringutil.Truncate(this.HttpMethod, HTTP_METHOD_MAX_SIZE))
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		dout.WriteTextShortLength(this.IsStaticContents)
+	} else if this.Ver > 20000 {
+		// Python
+		dout.WriteTextShortLength(this.IsStaticContents)
+	} else {
+		// PHP
+		if this.Ver >= 10103 {
+			dout.WriteTextShortLength(stringutil.Truncate(this.HttpMethod, HTTP_METHOD_MAX_SIZE))
+		}
+	}
 }
 
 func (this *UdpTxStartPack) Read(din *io.DataInputX) {
@@ -98,7 +114,23 @@ func (this *UdpTxStartPack) Read(din *io.DataInputX) {
 	this.Ref = din.ReadTextShortLength()
 	this.WClientId = din.ReadTextShortLength()
 
-	this.HttpMethod = din.ReadTextShortLength()
+	if this.Ver > 50000 {
+		// Golang
+		this.HttpMethod = din.ReadTextShortLength()
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		this.IsStaticContents = din.ReadTextShortLength()
+	} else if this.Ver > 20000 {
+		// Python
+		this.IsStaticContents = din.ReadTextShortLength()
+	} else {
+		// PHP
+		if this.Ver >= 10103 {
+			this.HttpMethod = din.ReadTextShortLength()
+		}
+	}
 }
 
 func (this *UdpTxStartPack) Process() {

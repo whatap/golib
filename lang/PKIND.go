@@ -30,17 +30,17 @@ func (this *PKIND) GetOid() int32 {
 func (this *PKIND) Hash() uint {
 	prime := 31
 	result := 1
-	result = prime*result + int(this.OKind^int32(uint32(this.OKind)>>32))
+	result = prime*result + int(this.OKind)
 	result = prime*result + int(this.PCode^int64(uint64(this.PCode)>>32))
 	return uint(result)
 }
 
 func (this *PKIND) Equals(obj hmap.LinkedKey) bool {
-	if this == obj.(*PKIND) {
-		return true
-	}
 	if obj == nil {
 		return false
+	}
+	if this == obj.(*PKIND) {
+		return true
 	}
 
 	//		if (getClass() != obj.getClass())

@@ -2,6 +2,7 @@ package urlutil
 
 import (
 	//	"log"
+	"fmt"
 	_ "fmt"
 	"net/url"
 	"strconv"
@@ -30,47 +31,7 @@ func NewURL(url string) *URL {
 
 	return p
 }
-func (this *URL) process1() {
-	if u, err := url.Parse(this.Url); err == nil {
-		this.Protocol = u.Scheme
-		this.Host = u.Host
-		this.RawPort = u.Port()
-		if this.RawPort == "" {
-			if strings.ToLower(this.Protocol) == "https" {
-				this.Port = 443
-			} else {
-				this.Port = 80
-			}
-		} else {
-			this.Port, _ = strconv.Atoi(this.RawPort)
-		}
-		pos := strings.LastIndex(u.Path, "/")
-		if pos > -1 {
-			this.Path = string(u.Path[pos:])
-		}
 
-		this.Path = u.Path
-		if this.Path == "" {
-			this.Path = "/"
-		}
-		this.Query = u.RawQuery
-
-		// Path, Query URLDecode추가 (net/url)
-		this.RawPath = this.Path
-		this.Path, err = url.PathUnescape(this.RawPath)
-		if err != nil {
-			this.Path = this.RawPath
-		}
-		this.RawQuery = this.Query
-		this.Query, err = url.QueryUnescape(this.RawQuery)
-		if err != nil {
-			this.Query = this.RawQuery
-		}
-
-	} else {
-
-	}
-}
 func (this *URL) process() {
 	var tmp string
 	var pos int
@@ -125,17 +86,7 @@ func (this *URL) process() {
 		}
 	}
 
-	// Path, File, Query
-	pos = strings.Index(tmp, "?")
-	if pos > -1 {
-		this.Path = tmp[0:pos]
-		//this.File = tmp
-		//this.Query = tmp[pos+1:]
-	} else {
-		this.Path = tmp
-		//this.File = tmp
-		//this.Query = ""
-	}
+	this.Path = tmp
 
 	// Path, Query URLDecode추가 (net/url)
 	this.RawPath = this.Path
@@ -170,7 +121,13 @@ func (this *URL) String() string {
 	}
 	return rt
 }
+func (this *URL) HostPort() string {
+	if this.Port > 0 && this.Port != 443 && this.Port != 80 {
+		return fmt.Sprintf("%s:%d", this.Host, this.Port)
+	}
+	return this.Host
 
+}
 func (this *URL) Domain() string {
 	rt := ""
 	if this.Protocol != "" {
@@ -193,4 +150,11 @@ func (this *URL) DomainPath() string {
 
 	rt = rt + this.Path
 	return rt
+}
+func (this *URL) ParseQuery() map[string][]string {
+	if m, err := url.ParseQuery(this.Query); err == nil {
+		return map[string][]string(m)
+	} else {
+		return make(map[string][]string)
+	}
 }

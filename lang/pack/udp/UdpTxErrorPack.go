@@ -47,6 +47,20 @@ func (this *UdpTxErrorPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
 	dout.WriteTextShortLength(this.ErrorType)
 	dout.WriteTextShortLength(this.ErrorMessage)
+
+	if this.Ver > 50000 {
+		// Golang
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		dout.WriteTextShortLength(this.Stack)
+	} else if this.Ver > 20000 {
+		// Python
+		dout.WriteTextShortLength(this.Stack)
+	} else {
+		// PHP
+	}
 }
 
 func (this *UdpTxErrorPack) Read(din *io.DataInputX) {
@@ -54,6 +68,31 @@ func (this *UdpTxErrorPack) Read(din *io.DataInputX) {
 
 	this.ErrorType = din.ReadTextShortLength()
 	this.ErrorMessage = din.ReadTextShortLength()
+
+	if this.Ver > 50000 {
+		// Golang
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+		this.Stack = din.ReadTextShortLength()
+	} else if this.Ver > 20000 {
+		// Python
+		this.Stack = din.ReadTextShortLength()
+	} else {
+		// PHP
+	}
 }
 func (this *UdpTxErrorPack) Process() {
+	if this.Ver > 50000 {
+		// Golang
+	} else if this.Ver > 40000 {
+		// Batch
+	} else if this.Ver > 30000 {
+		// Dotnet
+	} else if this.Ver > 20000 {
+		// Python
+	} else {
+		// PHP
+	}
 }

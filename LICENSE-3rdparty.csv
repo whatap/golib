@@ -1,0 +1,9 @@
+ISC,github.com/davecgh/go-spew/spew,https://github.com/davecgh/go-spew/blob/v1.1.1/LICENSE
+BSD-3-Clause,github.com/google/uuid,https://github.com/google/uuid/blob/v1.3.0/LICENSE
+BSD-2-Clause,github.com/magiconair/properties,https://github.com/magiconair/properties/blob/v1.8.7/LICENSE.md
+BSD-3-Clause,github.com/pmezard/go-difflib/difflib,https://github.com/pmezard/go-difflib/blob/v1.0.0/LICENSE
+MIT,github.com/stretchr/objx,https://github.com/stretchr/objx/blob/v0.5.0/LICENSE
+MIT,github.com/stretchr/testify,https://github.com/stretchr/testify/blob/v1.8.1/LICENSE
+Apache-2.0,github.com/whatap/golib,https://github.com/whatap/golib/blob/HEAD/LICENSE
+BSD-3-Clause,golang.org/x/text,https://cs.opensource.google/go/x/text/+/v0.7.0:LICENSE
+MIT,gopkg.in/yaml.v3,https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE

@@ -1,9 +1,11 @@
 package dateutil
 
-import (
-	//"log"
-	"time"
-)
+//"log"
+// "time"
+
+func init() {
+	StartSyncTime()
+}
 
 var helper = getDateTimeHelper("")
 
@@ -45,8 +47,10 @@ func YmdNow() string {
 var delta int64 = 0
 
 func SystemNow() int64 {
-	return (time.Now().UnixNano() / 1000000)
+	//return (time.Now().UnixNano() / 1000000)
+	return SyncTimeMillis
 }
+
 func Now() int64 {
 	t := SystemNow()
 	return t + delta
