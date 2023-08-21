@@ -1,4 +1,4 @@
-package zip
+package compressutil
 
 import (
 	"bytes"
@@ -7,19 +7,7 @@ import (
 	"io/ioutil"
 )
 
-type DefaultZipMod struct {
-	id byte
-}
-
-func NewDefaultZipMod() *DefaultZipMod {
-	p := new(DefaultZipMod)
-	return p
-}
-func (this *DefaultZipMod) ID() byte {
-	return ZIP_MOD_DEFULAT_GZIP
-}
-
-func (this *DefaultZipMod) Compress(in []byte) (output []byte, err error) {
+func DoZip(in []byte) (output []byte, err error) {
 	if in == nil {
 		err = fmt.Errorf("error input data is nil ")
 		return
@@ -38,7 +26,7 @@ func (this *DefaultZipMod) Compress(in []byte) (output []byte, err error) {
 	return
 }
 
-func (this *DefaultZipMod) Decompress(in []byte) ([]byte, error) {
+func UnZip(in []byte) ([]byte, error) {
 	r, err := gzip.NewReader(ioutil.NopCloser(bytes.NewBuffer(in)))
 	if err != nil {
 		return make([]byte, 0), err

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/whatap/golib/io"
+	"github.com/whatap/golib/lang/value"
 	"github.com/whatap/golib/util/hash"
 )
 
@@ -55,7 +56,7 @@ type TxRecord struct {
 	HttpMethod byte
 
 	Domain int32
-	Fields []*FIELD
+	Fields *value.MapValue
 
 	Login int32
 
@@ -71,6 +72,11 @@ type TxRecord struct {
 
 	//20210628 -
 	Apdex byte
+
+	McallerStepId int64
+	OriginUrl     string
+
+	StepSplitCount int
 }
 
 func NewTxRecord() *TxRecord {
@@ -145,11 +151,22 @@ func (this *TxRecord) Write(dout *io.DataOutputX) {
 	if this.Fields == nil {
 		o.WriteByte(0)
 	} else {
-		sz := len(this.Fields)
+		sz := this.Fields.Size()
 		o.WriteByte(byte(sz))
-		for i := 0; i < sz; i++ {
-			o.WriteByte(byte(this.Fields[i].Id))
-			o.WriteText(this.Fields[i].Value)
+		keys := this.Fields.Keys()
+		for keys.HasMoreElements() {
+			key := keys.NextString()
+			tmp := this.Fields.Get(key)
+			if tmp != nil {
+				if v, ok := tmp.(value.Value); ok {
+					o.WriteText(key)
+					value.WriteValue(o, v)
+				}
+			} else {
+				// empty string
+				o.WriteText(key)
+				value.WriteValue(o, value.NewTextValue(""))
+			}
 		}
 	}
 	o.WriteDecimal(int64(this.Login))
@@ -170,6 +187,12 @@ func (this *TxRecord) Write(dout *io.DataOutputX) {
 
 	// 2021.06.28 , java //2021.05.13
 	o.WriteByte(this.Apdex)
+
+	// 2023.07.17 , java //2021.12.10
+	o.WriteDecimal(this.McallerStepId)
+	o.WriteText(this.OriginUrl)
+
+	o.WriteDecimal(int64(this.StepSplitCount))
 
 	////////////// BLOB ///////////////
 	dout.WriteBlob(o.ToByteArray())
@@ -252,12 +275,11 @@ func (this *TxRecord) Read(din *io.DataInputX) *TxRecord {
 
 	n := int(in.ReadByte())
 	if n > 0 {
-		this.Fields = make([]*FIELD, n)
+		this.Fields = value.NewMapValue()
 		for i := 0; i < n; i++ {
-			field := NewFIELD()
-			field.Id = in.ReadByte()
-			field.Value = in.ReadText()
-			this.Fields[i] = field
+			key := in.ReadText()
+			v := value.ReadValue(in)
+			this.Fields.Put(key, v)
 		}
 	}
 	//if in.Available() > 0  {
@@ -285,6 +307,13 @@ func (this *TxRecord) Read(din *io.DataInputX) *TxRecord {
 
 	//if in.Available() > 0  {
 	this.Apdex = in.ReadByte()
+
+	//if (in.available() > 0) {
+	this.McallerStepId = in.ReadDecimal()
+	this.OriginUrl = in.ReadText()
+
+	//if (in.available() > 0) {
+	this.StepSplitCount = int(in.ReadDecimal())
 
 	return this
 }

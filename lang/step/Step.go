@@ -29,6 +29,7 @@ type Step interface {
 
 	// interface 함수 추가
 	GetStartTime() int32
+	SetStartTime(t int32)
 
 	SetParent(v int32)
 	GetParent() int32
@@ -76,6 +77,9 @@ type AbstractStep struct {
 
 func (this *AbstractStep) GetStartTime() int32 {
 	return this.StartTime
+}
+func (this *AbstractStep) SetStartTime(t int32) {
+	this.StartTime = t
 }
 
 func (this *AbstractStep) SetParent(v int32) {

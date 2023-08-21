@@ -20,6 +20,7 @@ import (
 	_ "github.com/whatap/golib/net"
 	_ "github.com/whatap/golib/net/oneway"
 	_ "github.com/whatap/golib/net/udp"
+	_ "github.com/whatap/golib/util/ansi"
 	_ "github.com/whatap/golib/util/bitutil"
 	_ "github.com/whatap/golib/util/cmdutil"
 	_ "github.com/whatap/golib/util/compare"

@@ -77,6 +77,8 @@ const (
 	PACK_WEB_CHECK_COUNT   = 0x1707
 	PACK_LOGSINK           = 0x170a
 	PACK_ZIP               = 0x170b
+	PACK_AGENT_MAPPING     = 0x170c
+	PACK_LOGSINK_ZIP       = 0x170d
 
 	//	// 12288
 	//	PACK_SM_BASE       = 0x3000
@@ -124,6 +126,10 @@ type Pack interface {
 	GetPCODE() int64
 	SetOKIND(okind int32)
 	SetONODE(onode int32)
+
+	// Time interface 추가
+	GetTime() int64
+	SetTime(t int64)
 }
 
 func CreatePack(t int16) Pack {

@@ -131,6 +131,10 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 			dout.WriteTextShortLength(this.McallerUrl)
 			dout.WriteTextShortLength(this.McallerPoidKey)
 		}
+
+		if this.Ver >= 10107 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
 	}
 }
 
@@ -184,6 +188,11 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 			this.McallerSpec = din.ReadTextShortLength()
 			this.McallerUrl = din.ReadTextShortLength()
 			this.McallerPoidKey = din.ReadTextShortLength()
+		}
+
+		if this.Ver >= 10107 {
+			// reponse code
+			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
 		}
 	}
 }

@@ -43,15 +43,13 @@ func (this *ProfileStepSplitPack) Write(dout *io.DataOutputX) {
 	dout.WriteBlob(this.Steps)
 }
 
-func (this *ProfileStepSplitPack) Read(din *io.DataInputX) *ProfileStepSplitPack {
+func (this *ProfileStepSplitPack) Read(din *io.DataInputX) {
 	this.AbstractPack.Read(din)
-
 	// ver
 	din.ReadByte()
 	this.Txid = din.ReadLong()
 	this.Inx = int(din.ReadDecimal())
 	this.Steps = din.ReadBlob()
-	return this
 }
 
 func (this *ProfileStepSplitPack) SetProfile(steps []step.Step) *ProfileStepSplitPack {

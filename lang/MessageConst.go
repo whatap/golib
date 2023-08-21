@@ -1,0 +1,26 @@
+package lang
+
+const (
+	MESSAGE_FILE_WRITE_OPEN       = "FileWriteOpen"
+	MESSAGE_FILE_READ_OPEN        = "FileReadOpen"
+	MESSAGE_JSP                   = "JSP"
+	MESSAGE_CLOSE_CONNECTION      = "Close Connection"
+	MESSAGE_TRANSACTION_BACKSTACK = "TRANSACTION BACKSTACK"
+	MESSAGE_PREPARED_SQL          = "prepare-sql"
+	MESSAGE_OPEN_CONNECTION_STACK = "Open Connection Stack"
+	MESSAGE_CAP_ARG               = "TraceArgs"
+	MESSAGE_CAP_RETURN            = "TraceReturn"
+	MESSAGE_CAP_THIS              = "TraceConstructor"
+	MESSAGE_CONN_ALLOC_DUP        = "Connection allocated to multi-threads"
+	MESSAGE_THREAD_START          = "Thread-Start"
+	MESSAGE_SOCKET_OPEN           = "SocketOpen"
+	MESSAGE_CUSTOM_OPEN           = "CustomOpen"
+	MESSAGE_CUSTOM_CLOSE          = "CustomClose"
+	MESSAGE_ASYNC_CTX             = "AsyncCtx"
+	MESSAGE_EXCEPTION             = "EXCEPTION"
+	MESSAGE_THREAD_CHILD          = "Child-Thread-Call"
+	MESSAGE_ORIGIN_URL            = "OriginURL"
+	MESSAGE_MESSAGE               = "MESSAGE"
+	MESSAGE_METHOD_DEBUG          = "Debug-Method"
+	MESSAGE_VIRTUAL_TX            = "Virtual-Tx"
+)

@@ -68,6 +68,16 @@ func (this *AbstractPack) SetONODE(onode int32) {
 	this.Onode = onode
 }
 
+// Get Time
+func (this *AbstractPack) GetTime() int64 {
+	return this.Time
+}
+
+// Set Time
+func (this *AbstractPack) SetTime(t int64) {
+	this.Time = t
+}
+
 func (this *AbstractPack) ToString() string {
 	return fmt.Sprintln("\nPcode=", this.Pcode, ",Oid=", this.Oid, ",Okind=", this.Okind, ",ONode=", this.Onode, ",Time=", this.Time)
 }
