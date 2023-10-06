@@ -33,11 +33,11 @@ func (this *ServerInfoPack) GetPackType() int16 {
 }
 
 func (this *ServerInfoPack) Write(dout *io.DataOutputX) {
-	dout.WriteInt3(1)       //this.Version)
-	dout.WriteDecimal(6060) //this.Port)
+	dout.WriteInt3(this.Version) //this.Version)
+	dout.WriteDecimal(this.Port) //this.Port)
 	dout.WriteDecimal(this.UpTime)
 	dout.WriteDecimal(this.KeepTime)
-	dout.WriteText(RUMCTL) //this.ServerName)
+	dout.WriteText(this.ServerName) //this.ServerName)
 	this.Attr.Write(dout)
 }
 

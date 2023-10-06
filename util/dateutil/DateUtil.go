@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-// func init() {
-// 	StartSyncTime()
-// }
-
 var helper = getDateTimeHelper("")
 
 func DateTime(time int64) string {
@@ -49,11 +45,7 @@ func YmdNow() string {
 var delta int64 = 0
 
 func SystemNow() int64 {
-	if IsSyncTime() {
-		return SyncTime.UnixNano() / 1000000
-	}
 	return (time.Now().UnixNano() / 1000000)
-	//return SyncTimeMillis
 }
 
 func Now() int64 {

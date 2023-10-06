@@ -5,21 +5,32 @@ import (
 )
 
 const (
+	STEP_METHOD       = 1
+	STEP_SQL          = 2
 	STEP_RESULTSET    = 3
 	STEP_SOCKET       = 5
 	STEP_ACTIVE_STACK = 6
 	STEP_MESSAGE      = 7
 	STEP_DBC          = 8
+	STEP_SQL_2        = 9
+	STEP_POSITION     = 10
+	STEP_METHOD_2     = 11
 
-	// Java METHOD_3 = 12
 	STEP_METHOD_3       = 12
 	STEP_SQL_3          = 13
-	STEP_SQL_X          = 18
-	STEP_HTTPCALL_X     = 19 // 14 -> 19
+	STEP_HTTPCALL_3     = 14
 	STEP_SECURE_MESSAGE = 15
+	STEP_CHILD_THREAD   = 16
 
-	// Java METHOD_X = 17
-	STEP_METHOD_X = 17
+	STEP_METHOD_X   = 17
+	STEP_SQL_X      = 18
+	STEP_HTTPCALL_X = 19 // 14 -> 19
+	STEP_REMOTE     = 20
+	STEP_DBC_X      = 21
+	STEP_MESSAGE_X  = 22
+
+	STEP_RESOURCE    = 50
+	STEP_RUM_ERR_MSG = 51
 )
 
 type Step interface {
