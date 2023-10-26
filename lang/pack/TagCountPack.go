@@ -68,7 +68,8 @@ func (this *TagCountPack) Put(name string, v interface{}) {
 	case string:
 		this.Data.Put(name, value.NewTextValue(v.(string)))
 	default:
-		panic(fmt.Sprintf("Panic, Not supported type %T. available type: value.Value, int, int32, int64, float32, float64, string ", v))
+		// panic(fmt.Sprintf("Panic, Not supported type %T. available type: value.Value, int, int32, int64, float32, float64, string ", v))
+		this.Data.Put(name, value.NewTextValue(fmt.Sprintf("%v", v)))
 	}
 }
 

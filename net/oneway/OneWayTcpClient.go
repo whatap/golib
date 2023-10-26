@@ -77,12 +77,13 @@ func GetOneWayTcpClient(opts ...OneWayTcpClientOption) *OneWayTcpClient {
 }
 func newOneWayTcpClient(opts ...OneWayTcpClientOption) *OneWayTcpClient {
 	p := new(OneWayTcpClient)
-	p.Queue = queue.NewRequestQueue(netQueueSize)
 
-	o := &oneWayTcpClientConfig{}
+	o := &oneWayTcpClientConfig{QueueSize: netQueueSize}
 	for _, opt := range opts {
 		opt.apply(o)
 	}
+
+	p.Queue = queue.NewRequestQueue(int(o.QueueSize))
 	p.Log = o.Log
 	if p.Log == nil {
 		p.Log = &logger.EmptyLogger{}
@@ -312,6 +313,7 @@ func (this *OneWayTcpClient) ApplyConfig(conf config.Config) {
 	host := conf.GetValue("whatap.server.host")
 	port := conf.GetValueDef("whatap.server.port", "6600")
 	servers := wnet.GetWhatapHosts(host, port)
+	qSize := int(conf.GetInt("oneway_queue_size", 0))
 
 	this.Pcode = conf.GetLong("pcode", 0)
 	this.Oid = conf.GetInt("oid", 0)
@@ -323,5 +325,9 @@ func (this *OneWayTcpClient) ApplyConfig(conf config.Config) {
 		this.Servers = servers
 		this.Close()
 		this.Connect()
+	}
+
+	if qSize > 0 && qSize != this.Queue.GetCapacity() {
+		this.Queue.SetCapacity(qSize)
 	}
 }

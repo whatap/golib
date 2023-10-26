@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/whatap/golib/io"
+	"github.com/whatap/golib/lang/value"
 )
 
 func TestTagCoutPackDefault(t *testing.T) {
@@ -25,6 +26,7 @@ func TestTagCoutPackDefault(t *testing.T) {
 	p.Put("TESTLONG7", uint64(7))
 	p.Put("TESTFLOAT1", float32(1.5))
 	p.Put("TESTFLOAT2", float64(2.5))
+	p.Put("TESTBOOL", true)
 
 	assert.Equal(t, p.GetLong("TESTLONG1"), int64(1))
 	assert.Equal(t, p.GetLong("TESTLONG2"), int64(2))
@@ -35,6 +37,7 @@ func TestTagCoutPackDefault(t *testing.T) {
 	assert.Equal(t, p.GetLong("TESTLONG7"), int64(7))
 	assert.Equal(t, p.GetFloat("TESTFLOAT1"), float64(1.5))
 	assert.Equal(t, p.GetFloat("TESTFLOAT2"), float64(2.5))
+	assert.Equal(t, p.Get("TESTBOOL").(*value.TextValue).Val, "true")
 
 	dout := io.NewDataOutputX()
 	p.Write(dout)

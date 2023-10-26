@@ -19,6 +19,7 @@ type oneWayTcpClientConfig struct {
 	Pcode          int64
 	Oid            int32
 	UseQueue       bool
+	QueueSize      int32
 	ConfigObserver *config.ConfigObserver
 }
 
@@ -94,6 +95,12 @@ func WithLicense(license string) OneWayTcpClientOption {
 func WithUseQueue() OneWayTcpClientOption {
 	return newFuncOneWayTcpClientOption(func(c *oneWayTcpClientConfig) {
 		c.UseQueue = true
+	})
+}
+
+func WithQueueSize(size int32) OneWayTcpClientOption {
+	return newFuncOneWayTcpClientOption(func(c *oneWayTcpClientConfig) {
+		c.QueueSize = size
 	})
 }
 

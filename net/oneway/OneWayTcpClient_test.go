@@ -138,6 +138,25 @@ func TestMultiConnect(t *testing.T) {
 	assert.Equal(oneway.Oid, testOid)
 }
 
+func TestWithQueueSize(t *testing.T) {
+	assert := assert.New(t)
+
+	//option
+	oneway := GetOneWayTcpClient(WithUseQueue(), WithQueueSize(10000))
+
+	assert.Equal(oneway.Queue.GetCapacity(), 10000)
+	oneway.Close()
+	oneway.Destroy()
+
+	//non-option - default
+	oneway = GetOneWayTcpClient(WithUseQueue())
+
+	assert.Equal(oneway.Queue.GetCapacity(), 1000)
+	oneway.Close()
+	oneway.Destroy()
+
+}
+
 func TestConfigApply(t *testing.T) {
 	assert := assert.New(t)
 	conf := &config.MockConfig{}
