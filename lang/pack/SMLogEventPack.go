@@ -21,6 +21,9 @@ type SMLogEvent struct {
 	WinSourceName *string
 	WinEventCode  int32
 	WinCreateTime int64
+
+	Keyword *string
+	LogRule *string
 }
 
 func (this *SMLogEvent) Write(out *io.DataOutputX) {
@@ -52,6 +55,8 @@ func (this *SMLogEvent) Write(out *io.DataOutputX) {
 
 	dout.WriteInt(this.WinEventCode)
 	dout.WriteLong(this.WinCreateTime)
+	dout.WriteText(*this.Keyword)
+	dout.WriteText(*this.LogRule)
 
 	out.WriteBlob(dout.ToByteArray())
 }
@@ -73,6 +78,11 @@ func (this *SMLogEvent) Read(in *io.DataInputX) {
 	this.WinSourceName = &winsourcename
 	this.WinEventCode = din.ReadInt()
 	this.WinCreateTime = din.ReadLong()
+	keyword := din.ReadText()
+	this.Keyword = &keyword
+	logRule := din.ReadText()
+	this.LogRule = &logRule
+
 }
 
 type SMLogEventPack struct {
