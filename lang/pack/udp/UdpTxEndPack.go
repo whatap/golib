@@ -28,6 +28,9 @@ type UdpTxEndPack struct {
 
 	Status int32
 
+	McallerStepId int64
+	XTraceId      string
+
 	// Processing data
 	ServiceURL     *urlutil.URL
 	McallerUrlHash int32
@@ -73,6 +76,9 @@ func (this *UdpTxEndPack) Clear() {
 
 	this.Status = 0
 
+	this.McallerStepId = 0
+	this.XTraceId = ""
+
 	// Processing data
 	this.ServiceURL = nil
 	this.McallerUrlHash = 0
@@ -97,6 +103,10 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.McallerPoidKey)
 		if this.Ver >= 50100 {
 			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
+		if this.Ver >= 50101 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
+			dout.WriteTextShortLength(this.XTraceId)
 		}
 	} else if this.Ver > 40000 {
 		// Batch
@@ -135,6 +145,11 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 		if this.Ver >= 10107 {
 			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
 		}
+
+		if this.Ver >= 10108 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
+			dout.WriteTextShortLength(this.XTraceId)
+		}
 	}
 }
 
@@ -154,6 +169,10 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 
 		if this.Ver >= 50100 {
 			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+		if this.Ver >= 50101 {
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.XTraceId = din.ReadTextShortLength()
 		}
 
 	} else if this.Ver > 40000 {
@@ -193,6 +212,11 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		if this.Ver >= 10107 {
 			// reponse code
 			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+
+		if this.Ver >= 10108 {
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.XTraceId = din.ReadTextShortLength()
 		}
 	}
 }

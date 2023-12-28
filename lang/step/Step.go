@@ -5,6 +5,9 @@ import (
 )
 
 const (
+	FLAG_NORMAL            = 0x00
+	FLAG_ALREADY_SET_INDEX = 0x02
+
 	STEP_METHOD       = 1
 	STEP_SQL          = 2
 	STEP_RESULTSET    = 3
@@ -52,6 +55,9 @@ type Step interface {
 	GetDrop() bool
 
 	GetElapsed() int32
+
+	IsTrue(flag int) bool
+	SetTrue(flag int)
 }
 
 func CreateStep(t byte) Step {

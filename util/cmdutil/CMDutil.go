@@ -376,6 +376,17 @@ func GetDockerFullId() string {
 	return strings.TrimSuffix(string(out), "\n")
 }
 
+func GetLinuxProductUUID() string {
+	if runtime.GOOS == "linux" {
+		cmd := exec.Command("cat", "/sys/class/dmi/id/product_uuid")
+		out, err := cmd.Output()
+		if err == nil {
+			return string(out)
+		}
+	}
+	return ""
+}
+
 func CMDMain() {
 	c1 := exec.Command("ps", "aux")
 	c2 := exec.Command("grep", "httpd")

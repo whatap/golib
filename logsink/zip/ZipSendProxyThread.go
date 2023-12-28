@@ -163,7 +163,7 @@ func (this *ZipSendProxyThread) sendAndClear() {
 
 	p := pack.NewZipPack()
 	p.Time = dateutil.SystemNow()
-	p.RecountCount = this.packCount
+	p.RecordCount = this.packCount
 	p.Records = this.buffer.Bytes()
 
 	this.doZip(p)
@@ -197,13 +197,13 @@ func (this *ZipSendProxyThread) SendDirect(arr []*pack.LogSinkPack) {
 	// this.Log.Info("ZipSend SendDirect ", len(arr))
 	var buffer bytes.Buffer
 	p := pack.NewZipPack()
-	p.RecountCount = 0
+	p.RecordCount = 0
 
 	for _, it := range arr {
 		dout := io.NewDataOutputX()
 		pack.WritePack(dout, it)
 		buffer.Write(dout.ToByteArray())
-		p.RecountCount++
+		p.RecordCount++
 
 		if buffer.Len() >= this.logsinkMaxBufferSize {
 			p.Records = buffer.Bytes()
@@ -219,7 +219,7 @@ func (this *ZipSendProxyThread) SendDirect(arr []*pack.LogSinkPack) {
 
 			//  init after send
 			p = pack.NewZipPack()
-			p.RecountCount = 0
+			p.RecordCount = 0
 		}
 	}
 

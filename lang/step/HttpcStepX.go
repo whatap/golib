@@ -4,8 +4,14 @@ import (
 	"github.com/whatap/golib/io"
 )
 
+const (
+	HTTPC_STEP_DEFAULT_VERSION = 2
+)
+
 type HttpcStepX struct {
 	AbstractStep
+
+	Version byte
 
 	Url  int32
 	Host int32
@@ -20,13 +26,23 @@ type HttpcStepX struct {
 	StartMem int64
 	Stack    []int32
 
-	Callee int64
+	StepId    int64
+	Driver    string
+	OriginUrl string
+	Param     string
 }
 
 func NewHttpcStepX() *HttpcStepX {
 	p := new(HttpcStepX)
+	p.Version = HTTPC_STEP_DEFAULT_VERSION
 	return p
 }
+func NewHttpcStepXVersion(ver byte) *HttpcStepX {
+	p := new(HttpcStepX)
+	p.Version = ver
+	return p
+}
+
 func (this *HttpcStepX) GetStepType() byte {
 	return STEP_HTTPCALL_X
 }
@@ -34,7 +50,7 @@ func (this *HttpcStepX) GetStepType() byte {
 func (this *HttpcStepX) Write(out *io.DataOutputX) {
 	this.AbstractStep.Write(out)
 
-	out.WriteByte(1)
+	out.WriteByte(this.Version)
 	out.WriteDecimal(int64(this.Url))
 	out.WriteDecimal(int64(this.Elapsed))
 	out.WriteDecimal(this.Error)
@@ -45,7 +61,16 @@ func (this *HttpcStepX) Write(out *io.DataOutputX) {
 	out.WriteDecimal(int64(this.StartCpu))
 	out.WriteDecimal(int64(this.StartMem))
 	out.WriteIntArray(this.Stack)
-	out.WriteDecimal(this.Callee)
+	switch this.Version {
+	case 1:
+		out.WriteDecimal(0)
+	case 2:
+		out.WriteDecimal(this.StepId)
+		out.WriteText(this.Driver)
+		out.WriteText(this.OriginUrl)
+		out.WriteText(this.Param)
+	}
+
 }
 
 func (this *HttpcStepX) Read(in *io.DataInputX) {
@@ -63,8 +88,14 @@ func (this *HttpcStepX) Read(in *io.DataInputX) {
 	this.StartMem = int64(in.ReadDecimal())
 	this.Stack = in.ReadIntArray()
 
-	if ver > 0 {
-		this.Callee = in.ReadDecimal()
+	switch ver {
+	case 1:
+		in.ReadDecimal()
+	case 2:
+		this.StepId = in.ReadDecimal()
+		this.Driver = in.ReadText()
+		this.OriginUrl = in.ReadText()
+		this.Param = in.ReadText()
 	}
 }
 

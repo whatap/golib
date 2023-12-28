@@ -11,9 +11,9 @@ const ()
 type ZipPack struct {
 	AbstractPack
 
-	Records      []byte
-	RecountCount int
-	Status       byte
+	Records     []byte
+	RecordCount int
+	Status      byte
 }
 
 func NewZipPack() *ZipPack {
@@ -34,7 +34,7 @@ func (this *ZipPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
 
 	dout.WriteByte(this.Status)
-	dout.WriteDecimal(int64(this.RecountCount))
+	dout.WriteDecimal(int64(this.RecordCount))
 	dout.WriteBlob(this.Records)
 }
 
@@ -42,12 +42,12 @@ func (this *ZipPack) Read(din *io.DataInputX) {
 	this.AbstractPack.Read(din)
 
 	this.Status = din.ReadByte()
-	this.RecountCount = int(din.ReadDecimal())
+	this.RecordCount = int(din.ReadDecimal())
 	this.Records = din.ReadBlob()
 }
 
 //public ZipPack setRecords(int size, Enumeration<AbstractPack> items) {
-//		this.recountCount=size;
+//		this.RecordCount=size;
 //		DataOutputX o = new DataOutputX();
 //		for (int i = 0; i < size; i++) {
 //			o.writePack(items.nextElement());
@@ -57,7 +57,7 @@ func (this *ZipPack) Read(din *io.DataInputX) {
 //	}
 
 func (this *ZipPack) SetRecords(items []Pack) *ZipPack {
-	this.RecountCount = len(items)
+	this.RecordCount = len(items)
 	o := io.NewDataOutputX()
 	for _, it := range items {
 		o = WritePack(o, it)
@@ -72,7 +72,7 @@ func (this *ZipPack) GetRecords() []Pack {
 		return nil
 	}
 	in := io.NewDataInputX(this.Records)
-	for i := 0; i < this.RecountCount; i++ {
+	for i := 0; i < this.RecordCount; i++ {
 		p := ReadPack(in)
 
 		p.SetPCODE(this.Pcode)

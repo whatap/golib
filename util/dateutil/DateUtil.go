@@ -2,10 +2,19 @@ package dateutil
 
 import (
 	//"log"
+	"os"
 	"time"
 )
 
 var helper = getDateTimeHelper("")
+
+func init() {
+	datetimeMode := os.Getenv("WHATAP_DATETIME_MODE")
+	if datetimeMode == "" || datetimeMode == "default" {
+	} else {
+		StartSyncTime()
+	}
+}
 
 func DateTime(time int64) string {
 	return helper.datetime(time)
@@ -45,7 +54,10 @@ func YmdNow() string {
 var delta int64 = 0
 
 func SystemNow() int64 {
-	return (time.Now().UnixNano() / 1000000)
+	if IsSyncTime() {
+		return SyncTimeMillis
+	}
+	return (time.Now().UnixMilli())
 }
 
 func Now() int64 {

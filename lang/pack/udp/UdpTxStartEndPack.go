@@ -32,6 +32,11 @@ type UdpTxStartEndPack struct {
 	McallerUrl     string
 	McallerPoidKey string
 
+	Status int32
+
+	McallerStepId int64
+	XTraceId      string
+
 	//Processing data
 	ServiceURL     *urlutil.URL
 	RefererURL     *urlutil.URL
@@ -84,6 +89,10 @@ func (this *UdpTxStartEndPack) Clear() {
 	this.McallerUrl = ""
 	this.McallerPoidKey = ""
 
+	this.Status = 0
+	this.McallerStepId = 0
+	this.XTraceId = ""
+
 	//Processing data
 	this.ServiceURL = nil
 	this.RefererURL = nil
@@ -117,6 +126,13 @@ func (this *UdpTxStartEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.McallerSpec)
 		dout.WriteTextShortLength(this.McallerUrl)
 		dout.WriteTextShortLength(this.McallerPoidKey)
+		if this.Ver >= 50100 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
+		if this.Ver >= 50101 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
+			dout.WriteTextShortLength(this.XTraceId)
+		}
 	} else if this.Ver > 40000 {
 		// Batch
 	} else if this.Ver > 30000 {
@@ -145,6 +161,15 @@ func (this *UdpTxStartEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.McallerSpec)
 		dout.WriteTextShortLength(this.McallerUrl)
 		dout.WriteTextShortLength(this.McallerPoidKey)
+
+		if this.Ver >= 10107 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
+
+		if this.Ver >= 10108 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
+			dout.WriteTextShortLength(this.XTraceId)
+		}
 	}
 }
 
@@ -168,6 +193,14 @@ func (this *UdpTxStartEndPack) Read(din *io.DataInputX) {
 		this.McallerSpec = din.ReadTextShortLength()
 		this.McallerUrl = din.ReadTextShortLength()
 		this.McallerPoidKey = din.ReadTextShortLength()
+		if this.Ver >= 50100 {
+			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+		if this.Ver >= 50101 {
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.XTraceId = din.ReadTextShortLength()
+		}
+
 	} else if this.Ver > 40000 {
 		// Batch
 	} else if this.Ver > 30000 {
@@ -196,6 +229,16 @@ func (this *UdpTxStartEndPack) Read(din *io.DataInputX) {
 		this.McallerSpec = din.ReadTextShortLength()
 		this.McallerUrl = din.ReadTextShortLength()
 		this.McallerPoidKey = din.ReadTextShortLength()
+
+		if this.Ver >= 10107 {
+			// reponse code
+			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+
+		if this.Ver >= 10108 {
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.XTraceId = din.ReadTextShortLength()
+		}
 	}
 }
 

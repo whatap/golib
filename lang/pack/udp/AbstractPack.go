@@ -18,6 +18,8 @@ type AbstractPack struct {
 	Mem      int64
 	Pid      int32
 	ThreadId int64
+	Index    int32
+	Parent   int32
 
 	Flush bool
 }
@@ -31,6 +33,8 @@ func (this *AbstractPack) Clear() {
 	this.Mem = 0
 	this.Pid = 0
 	this.ThreadId = 0
+	this.Index = -1
+	this.Parent = -1
 
 	this.Flush = false
 }
@@ -65,8 +69,11 @@ func (this *AbstractPack) Write(dout *io.DataOutputX) {
 		if this.Ver >= 10104 {
 			dout.WriteLong(this.ThreadId)
 		}
+		if this.Ver >= 10109 {
+			dout.WriteInt(this.Index)
+			dout.WriteInt(this.Parent)
+		}
 	}
-
 }
 func (this *AbstractPack) Read(din *io.DataInputX) {
 	this.Txid = din.ReadLong()
@@ -92,12 +99,19 @@ func (this *AbstractPack) Read(din *io.DataInputX) {
 		this.Pid = din.ReadInt()
 		this.ThreadId = din.ReadLong()
 	} else {
+		// reset
+		this.Index = -1
+		this.Parent = -1
 		// PHP
 		if this.Ver >= 10101 {
 			this.Pid = din.ReadInt()
 		}
 		if this.Ver >= 10104 {
 			this.ThreadId = din.ReadLong()
+		}
+		if this.Ver >= 10109 {
+			this.Index = din.ReadInt()
+			this.Parent = din.ReadInt()
 		}
 	}
 }
