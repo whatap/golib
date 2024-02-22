@@ -44,7 +44,7 @@ func (this *DateFormat) format(t time.Time) string {
 	for _, ch := range ret {
 		switch ch {
 		case DATEFORMAT_YEAR:
-			buf.WriteString(LPadInt(t.Hour(), 2))
+			buf.WriteString(LPadInt(t.Year(), 4))
 		case DATEFORMAT_MONTH:
 			buf.WriteString(LPadInt(int(t.Month()), 2))
 		case DATEFORMAT_DAY:

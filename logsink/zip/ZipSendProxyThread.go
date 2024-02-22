@@ -120,13 +120,13 @@ func (this *ZipSendProxyThread) run() {
 		default:
 			// this.Log.Info("ZipSend Run  ", this.Queue.Size())
 			if tmp := this.Queue.GetTimeout(int(this.logsinkMaxWaitTime)); tmp != nil {
-				data := tmp.(*pack.LogSinkPack)
-				if data != nil {
+				if data, ok := tmp.(*pack.LogSinkPack); ok {
 					this.Append(data)
-				} else {
-					this.sendAndClear()
 				}
+			} else {
+				this.sendAndClear()
 			}
+
 		}
 	}
 }
