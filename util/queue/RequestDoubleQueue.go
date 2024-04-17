@@ -2,7 +2,9 @@ package queue
 
 import (
 	"sync"
+	"time"
 
+	"github.com/whatap/golib/util/dateutil"
 	"github.com/whatap/golib/util/list"
 )
 
@@ -41,6 +43,37 @@ func (this *RequestDoubleQueue) Get() interface{} {
 		return this.queue2.RemoveFirst()
 	}
 	return nil /*impossible*/
+}
+
+func (this *RequestDoubleQueue) GetTimeout(timeout int) interface{} {
+	t := timeout
+	timeto := dateutil.SystemNow() + int64(timeout)
+
+	// 최대 3~ 4 회 루프
+	var v interface{} = nil
+	for v = this.GetNoWait(); v == nil; v = this.GetNoWait() {
+		time.Sleep(time.Duration(t/3) * time.Millisecond)
+
+		t = int(timeto - dateutil.SystemNow())
+		if t <= 0 {
+			break
+		}
+	}
+
+	return v
+}
+
+func (this *RequestDoubleQueue) GetNoWait() interface{} {
+	this.lock.L.Lock()
+	defer this.lock.L.Unlock()
+
+	if this.queue1.Size() > 0 {
+		return this.queue1.RemoveFirst()
+	}
+	if this.queue2.Size() > 0 {
+		return this.queue2.RemoveFirst()
+	}
+	return nil
 }
 func (this *RequestDoubleQueue) Put1(v interface{}) bool {
 	this.lock.L.Lock()
