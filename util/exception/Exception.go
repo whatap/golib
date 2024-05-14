@@ -14,7 +14,7 @@ type CustomException struct {
 func NewCustomException(t, msg, stack, esc string) *CustomException {
 	p := new(CustomException)
 	p.ErrorClassName = t
-	p.ErrorMessage = stack
+	p.ErrorMessage = msg
 	p.ErrorStack = stack
 	p.ErrorEsc = esc
 	return p

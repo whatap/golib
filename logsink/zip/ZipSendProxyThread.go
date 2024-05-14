@@ -11,6 +11,7 @@ import (
 	"github.com/whatap/golib/lang/pack"
 	"github.com/whatap/golib/logger"
 	wnet "github.com/whatap/golib/net"
+	"github.com/whatap/golib/util/compressutil"
 	"github.com/whatap/golib/util/dateutil"
 	"github.com/whatap/golib/util/queue"
 )
@@ -185,10 +186,9 @@ func (this *ZipSendProxyThread) doZip(p *pack.ZipPack) {
 		return
 	}
 
-	z := NewDefaultZipMod()
-	p.Status = z.ID()
+	p.Status = pack.ZIPPED
 	var err error
-	if p.Records, err = z.Compress(p.Records); err != nil {
+	if p.Records, err = compressutil.DoZip(p.Records); err != nil {
 		this.Log.Error("WA-LOGS-103", "Compress Error ", err)
 	}
 }

@@ -185,6 +185,8 @@ func CreatePack(t int16) Pack {
 		return NewLogSinkPack()
 	case PACK_ZIP:
 		return NewZipPack()
+	case PACK_LOGSINK_ZIP:
+		return NewLogSinkZipPack()
 
 	case PACK_SERVERINFO:
 		return NewServerInfoPack()
@@ -282,6 +284,9 @@ func GetPackTypeString(t int16) string {
 		return "LogSinkPack"
 	case PACK_ZIP:
 		return "ZipPack"
+	case PACK_LOGSINK_ZIP:
+		return "LogsinkZipPack"
+
 	}
 	return "Unknown"
 }
