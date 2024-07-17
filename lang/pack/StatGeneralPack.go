@@ -16,20 +16,29 @@ type StatGeneralPack struct {
 	dataBytesSize int
 	data          *hmap.StringKeyLinkedMap
 	lock          sync.Mutex
+
+	packType      int16
+	DataStartTime int64
 }
 
 func NewStatGeneralPack() *StatGeneralPack {
 	p := new(StatGeneralPack)
 	p.data = hmap.NewStringKeyLinkedMap()
+	p.packType = PACK_STAT_GENERAL
 	return p
 }
 
+func NewStatGeneralPackType(t int16) *StatGeneralPack {
+	p := NewStatGeneralPack()
+	p.packType = t
+	return p
+}
 func (this *StatGeneralPack) GetPackType() int16 {
-	return PACK_STAT_GENERAL
+	return this.packType
 }
 
 func (this *StatGeneralPack) ToString() string {
-	return fmt.Sprintln("StatGeneralPack ", this.AbstractPack.ToString(), ",data=", this.data.Size(), ",length=", this.dataBytesSize, ",bytes=", len(this.dataBytes))
+	return fmt.Sprintln("StatGeneralPack ", this.AbstractPack.ToString(), "packType=", this.packType, ",data=", this.data.Size(), ",length=", this.dataBytesSize, ",bytes=", len(this.dataBytes))
 }
 
 func (this *StatGeneralPack) Write(dout *io.DataOutputX) {
@@ -44,6 +53,13 @@ func (this *StatGeneralPack) Write(dout *io.DataOutputX) {
 
 	dout.WriteInt3(int32(this.dataBytesSize))
 	dout.WriteBytes(this.dataBytes)
+
+	if this.packType == PACK_STAT_GENERAL {
+		return
+	}
+	o := io.NewDataOutputX()
+	o.WriteDecimal(this.DataStartTime)
+	dout.WriteBlob(o.ToByteArray())
 }
 
 func (this *StatGeneralPack) writeTable(data *hmap.StringKeyLinkedMap) []byte {
@@ -144,6 +160,13 @@ func (this *StatGeneralPack) Read(din *io.DataInputX) {
 	this.Id = din.ReadText()
 	this.dataBytesSize = int(din.ReadInt3())
 	this.dataBytes = din.ReadBytes(int32(this.dataBytesSize))
+
+	if this.packType == PACK_STAT_GENERAL {
+		return
+	}
+	in := io.NewDataInputX(din.ReadBlob())
+	this.DataStartTime = in.ReadDecimal()
+
 	//return this
 }
 

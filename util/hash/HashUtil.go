@@ -79,6 +79,28 @@ func Hash64v2(bytes []byte) int64 {
 	return int64(crc)
 }
 
+func Hash64V2(bytes []byte) int64 {
+	if sz := len(bytes); sz == 0 {
+		return 0
+	} else {
+		crc := uint64(0xffffffffffffffff)
+		for i := 0; i < sz; i++ {
+			crc = (crc >> 8)
+			b := bytes[i]
+			n1 := uint64(table[(uint8(crc)^b)&0xff])
+			n2 := uint64(table[(uint8(crc>>32)^b)&0xff])
+			crc = crc ^ (n1 & 0xffffffff)
+			crc = crc ^ (n2 << 32)
+		}
+		crc = crc ^ 0xffffffffffffffff
+		return int64(crc)
+	}
+}
+
+func Hash64StrV2(str string) int64 {
+	return Hash64V2([]byte(str))
+}
+
 func HashAddr(src []byte) int64 {
 	switch len(src) {
 	case 4:
