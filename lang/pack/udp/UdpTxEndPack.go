@@ -88,6 +88,7 @@ func (this *UdpTxEndPack) SetMcallerUrlHash(v int32) {
 	this.McallerUrlHash = v
 	this.McallerUrl = fmt.Sprintf("%d", v)
 }
+
 func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
 	if this.Ver > 50000 {
@@ -116,7 +117,14 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.Uri)
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
-		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mcaller)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+
+		if this.Ver >= 30102 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+			dout.WriteTextShortLength(this.McallerSpec)
+			dout.WriteTextShortLength(this.McallerUrl)
+			dout.WriteTextShortLength(this.McallerPoidKey)
+		}
 	} else if this.Ver > 20000 {
 		// Python
 		dout.WriteTextShortLength(this.Host)
@@ -183,7 +191,14 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		this.Uri = din.ReadTextShortLength()
 		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
 		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
-		this.Mcaller = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+
+		if this.Ver >= 30102 {
+			this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.McallerSpec = din.ReadTextShortLength()
+			this.McallerUrl = din.ReadTextShortLength()
+			this.McallerPoidKey = din.ReadTextShortLength()
+		}
 	} else if this.Ver > 20000 {
 		// Python
 		this.Host = din.ReadTextShortLength()
@@ -220,6 +235,7 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		}
 	}
 }
+
 func (this *UdpTxEndPack) Process() {
 	if this.Host != "" && this.Uri != "" {
 		if strings.HasPrefix(this.Uri, "/") {
@@ -237,6 +253,11 @@ func (this *UdpTxEndPack) Process() {
 		// Batch
 	} else if this.Ver > 30000 {
 		// Dotnet
+		if this.Ver >= 30102 {
+			if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+				this.McallerUrlHash = int32(ret)
+			}
+		}
 	} else if this.Ver > 20000 {
 		// Python
 		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
