@@ -125,6 +125,9 @@ func (this *MapValue) PutString(key string, v string) {
 func (this *MapValue) PutLong(key string, v int64) {
 	this.Put(key, NewDecimalValue(v))
 }
+func (this *MapValue) PutDouble(key string, v float64) {
+	this.Put(key, NewDoubleValue(v))
+}
 func (this *MapValue) Put(key string, v Value) {
 	this.table.Put(key, v)
 }
