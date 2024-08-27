@@ -128,6 +128,14 @@ func (this *MapValue) PutLong(key string, v int64) {
 func (this *MapValue) Put(key string, v Value) {
 	this.table.Put(key, v)
 }
+func (this *MapValue) PutAll(m *MapValue) {
+	strEnumer := m.Keys()
+	for strEnumer.HasMoreElements() {
+		key := strEnumer.NextString()
+		this.table.Put(key, m.Get(key))
+	}
+}
+
 func (this *MapValue) Clear() {
 	this.table.Clear()
 }

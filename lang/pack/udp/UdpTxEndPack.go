@@ -125,6 +125,12 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 			dout.WriteTextShortLength(this.McallerUrl)
 			dout.WriteTextShortLength(this.McallerPoidKey)
 		}
+
+		if this.Ver >= 30103 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
+			dout.WriteTextShortLength(this.XTraceId)
+		}
 	} else if this.Ver > 20000 {
 		// Python
 		dout.WriteTextShortLength(this.Host)
@@ -198,6 +204,12 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 			this.McallerSpec = din.ReadTextShortLength()
 			this.McallerUrl = din.ReadTextShortLength()
 			this.McallerPoidKey = din.ReadTextShortLength()
+		}
+
+		if this.Ver >= 30103 {
+			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.XTraceId = din.ReadTextShortLength()
 		}
 	} else if this.Ver > 20000 {
 		// Python
