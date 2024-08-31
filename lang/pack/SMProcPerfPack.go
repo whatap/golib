@@ -101,8 +101,8 @@ func (this *ProcPerf) Write(out *io.DataOutputX) {
 	for _, procFile := range this.File {
 		procFile.Write(dout)
 	}
-	//dout.WriteDecimal(this.MemoryShared)
-	//dout.WriteDecimal(this.OpenFileDescriptors)
+	dout.WriteDecimal(this.MemoryShared)
+	dout.WriteDecimal(this.OpenFileDescriptors)
 
 	out.WriteBlob(dout.ToByteArray())
 }
