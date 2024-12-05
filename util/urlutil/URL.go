@@ -59,26 +59,12 @@ func (this *URL) process() {
 
 	// Host, Port
 	pos = strings.Index(tmp, "/")
+	hostPortStr := ""
 	if pos > -1 {
-		this.Host = tmp[0:pos]
-		tmp = tmp[pos:]
-
-		// Port 분리
-		pos = strings.Index(this.Host, ":")
-		if pos > -1 {
-			this.RawPort = this.Host[pos+1:]
-			this.Port, _ = strconv.Atoi(this.Host[pos+1:])
-			this.Host = this.Host[0:pos]
-		} else {
-			if this.Protocol == "https" {
-				this.Port = 443
-			} else {
-				this.Port = 80
-			}
-		}
-
+		hostPortStr = tmp[0:pos]
+		this.Path = tmp[pos:]
 	} else {
-		this.Host = tmp
+		hostPortStr = tmp
 		if this.Protocol == "https" {
 			this.Port = 443
 		} else {
@@ -86,7 +72,20 @@ func (this *URL) process() {
 		}
 	}
 
-	this.Path = tmp
+	if h, p, ok := this.ParsePort(hostPortStr); ok {
+		this.Host = h
+		this.RawPort = p
+		this.Port, _ = strconv.Atoi(this.RawPort)
+	} else {
+		this.Host = h
+		if this.Protocol == "https" {
+			this.Port = 443
+		} else {
+			this.Port = 80
+		}
+	}
+
+	// this.Path = tmp
 
 	// Path, Query URLDecode추가 (net/url)
 	this.RawPath = this.Path
@@ -100,6 +99,9 @@ func (this *URL) process() {
 		this.Query = this.RawQuery
 	}
 
+	// if this.Path == "" {
+	// 	this.Path = "/"
+	// }
 }
 
 // URL Decode 된  url 정보를 다시 조합해서 출력
@@ -157,4 +159,14 @@ func (this *URL) ParseQuery() map[string][]string {
 	} else {
 		return make(map[string][]string)
 	}
+}
+func (this *URL) ParsePort(str string) (string, string, bool) {
+	// Port 분리
+	pos := strings.Index(str, ":")
+	if pos > -1 {
+		rawPort := str[pos+1:]
+		rawHost := str[0:pos]
+		return rawHost, rawPort, true
+	}
+	return str, "", false
 }

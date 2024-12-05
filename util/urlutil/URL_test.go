@@ -7,7 +7,22 @@ import (
 )
 
 func TestURL(t *testing.T) {
-	p := NewURL("http://www.naver.com/")
+
+	p := NewURL("www.naver.com")
+	assert.Equal(t, "", p.Protocol)
+	assert.Equal(t, "www.naver.com", p.Host)
+	assert.Equal(t, 80, p.Port)
+	assert.Equal(t, "", p.Path)
+	assert.Equal(t, "", p.Query)
+
+	p = NewURL("www.naver.com:443")
+	assert.Equal(t, "", p.Protocol)
+	assert.Equal(t, "www.naver.com", p.Host)
+	assert.Equal(t, 443, p.Port)
+	assert.Equal(t, "", p.Path)
+	assert.Equal(t, "", p.Query)
+
+	p = NewURL("http://www.naver.com/")
 	assert.Equal(t, "http", p.Protocol)
 	assert.Equal(t, "www.naver.com", p.Host)
 	assert.Equal(t, 80, p.Port)
@@ -43,9 +58,19 @@ func TestURL(t *testing.T) {
 	assert.Equal(t, "aal=3&bbb=3&url=http://c7default.test.com/test/curl/curl.php", p.Query)
 
 	p = NewURL("http://www.naver.com/a/b/c/d/index.php?aal=3&bbb=3")
+	assert.Equal(t, "http", p.Protocol)
+	assert.Equal(t, "www.naver.com", p.Host)
+	assert.Equal(t, 80, p.Port)
+	assert.Equal(t, "/a/b/c/d/index.php", p.Path)
+	assert.Equal(t, "aal=3&bbb=3", p.Query)
 	//fmt.Println("url=", p.Url , "\r\n", p.Protocol, ", ", p.Host, ", ", p.Port , ", ", p.Path , ", ", p.File, ", ", p.Query)
 
 	p = NewURL("https://www.naver.com:80")
+	assert.Equal(t, "https", p.Protocol)
+	assert.Equal(t, "www.naver.com", p.Host)
+	assert.Equal(t, 80, p.Port)
+	assert.Equal(t, "", p.Path)
+	assert.Equal(t, "", p.Query)
 	//fmt.Println("url=", p.Url , "\r\n", p.Protocol, ", ", p.Host, ", ", p.Port , ", ", p.Path , ", ", p.File, ", ", p.Query)
 
 	p = NewURL("https://www.naver.com:80/")

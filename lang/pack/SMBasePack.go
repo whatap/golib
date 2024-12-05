@@ -2,11 +2,12 @@ package pack
 
 import (
 	"github.com/whatap/golib/io"
+	"github.com/whatap/golib/lang/value"
 )
 
-//##################################################
+// ##################################################
 // CPU ELEMENT
-//##################################################
+// ##################################################
 type Cpu interface {
 	Write(dout *io.DataOutputX)
 	Read(din *io.DataInputX)
@@ -82,7 +83,7 @@ func (this *CpuWindow) Read(dinx *io.DataInputX) {
 	this.ProcessorQueueLength = din.ReadFloat()
 }
 
-//CpuOSX CpuOSX
+// CpuOSX CpuOSX
 type CpuOSX struct {
 	User    float32
 	System  float32
@@ -128,9 +129,9 @@ func (this *CpuOSX) Read(dinx *io.DataInputX) {
 	this.Load15 = din.ReadFloat()
 }
 
-//##################################################
+// ##################################################
 // MEMORY ELEMENT
-//##################################################
+// ##################################################
 type Memory interface {
 	Write(dout *io.DataOutputX)
 	Read(din *io.DataInputX)
@@ -207,7 +208,7 @@ func (this *MemoryLinux) Read(dinx *io.DataInputX) {
 	this.SUnreclaim = din.ReadDecimal()
 }
 
-//MemoryWindow MemoryWindow
+// MemoryWindow MemoryWindow
 type MemoryWindow struct {
 	Total             int64
 	Free              int64
@@ -259,9 +260,9 @@ func (this *MemoryWindow) Read(dinx *io.DataInputX) {
 	this.PoolNonpagedBytes = din.ReadDecimal()
 }
 
-//##################################################
+// ##################################################
 // SYSBASE PACK
-//##################################################
+// ##################################################
 type SMBasePack struct {
 	AbstractPack
 	IP        int32
@@ -271,6 +272,7 @@ type SMBasePack struct {
 	Memory    Memory
 	UpTime    int64
 	EpochTime int64
+	Extra     *value.MapValue
 }
 
 func NewSMBasePack() *SMBasePack {
@@ -294,6 +296,13 @@ func (this *SMBasePack) Write(doutx *io.DataOutputX) {
 	this.Memory.Write(dout)
 	dout.WriteDecimal(this.UpTime)
 	dout.WriteLong(this.EpochTime)
+	if this.Extra != nil && this.Extra.Size() > 0 {
+		dout.WriteByte(1)
+		value.WriteMapValue(dout, this.Extra)
+	} else {
+		dout.WriteByte(0)
+	}
+
 	doutx.WriteBlob(dout.ToByteArray())
 }
 func (this *SMBasePack) Read(dinx *io.DataInputX) {
@@ -329,4 +338,12 @@ func (this *SMBasePack) Read(dinx *io.DataInputX) {
 	}
 	this.UpTime = din.ReadDecimal()
 	this.EpochTime = din.ReadLong()
+
+	if din.Available() == 0 {
+		return
+	}
+
+	if din.ReadByte() > 0 {
+		this.Extra = value.ReadMapValue(din)
+	}
 }

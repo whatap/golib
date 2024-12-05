@@ -30,7 +30,8 @@ const (
 	TX_SECURE_MSG uint8 = 13
 
 	// sql & param
-	TX_SQL_PARAM uint8 = 14
+	TX_SQL_PARAM  uint8 = 14
+	TX_RESULT_SET uint8 = 15
 
 	TX_PARAM     uint8 = 30
 	ACTIVE_STACK uint8 = 40

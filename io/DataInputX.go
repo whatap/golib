@@ -12,15 +12,16 @@ import (
 )
 
 type DataInputX struct {
-	buffer *bytes.Buffer
-	offset int32
-
-	tcp net.Conn
+	buffer  *bytes.Buffer
+	offset  int32
+	bufsize int32
+	tcp     net.Conn
 }
 
 func NewDataInputX(buf []byte) *DataInputX {
 	in := new(DataInputX)
 	in.buffer = bytes.NewBuffer(buf)
+	in.bufsize = int32(len(buf))
 	in.tcp = nil
 	return in
 }
@@ -461,4 +462,13 @@ func (in *DataInputX) ReadDecimalArray() []int64 {
 		data[i] = in.ReadDecimal()
 	}
 	return data
+}
+
+// hsnam 241022 buffer 의 모든 내용을 다 읽었을때 false를 응답하고 그외는 true를 리턴
+// tcp 일때는 미지원(false 리턴)
+func (in *DataInputX) Available() int32 {
+	if in.tcp != nil {
+		return 0
+	}
+	return int32(in.bufsize - in.offset)
 }
