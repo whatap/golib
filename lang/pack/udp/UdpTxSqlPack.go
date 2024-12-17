@@ -2,6 +2,7 @@ package udp
 
 import (
 	"fmt"
+	"github.com/whatap/golib/util/stringutil"
 
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/util/paramtext"
@@ -16,6 +17,7 @@ type UdpTxSqlPack struct {
 	ErrorMessage string
 
 	Stack string
+	Fetch int32
 }
 
 func NewUdpTxSqlPack() *UdpTxSqlPack {
@@ -51,6 +53,7 @@ func (this *UdpTxSqlPack) Clear() {
 	this.ErrorMessage = ""
 
 	this.Stack = ""
+	this.Fetch = 0
 }
 
 func (this *UdpTxSqlPack) Write(dout *io.DataOutputX) {
@@ -72,6 +75,9 @@ func (this *UdpTxSqlPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.Stack)
 	} else if this.Ver > 20000 {
 		// Python
+		if this.Ver >= 20102 {
+			dout.WriteTextShortLength(string(this.Fetch))
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10105 {
@@ -102,6 +108,9 @@ func (this *UdpTxSqlPack) Read(din *io.DataInputX) {
 		this.Stack = din.ReadTextShortLength()
 	} else if this.Ver > 20000 {
 		// Python
+		if this.Ver >= 20102 {
+			this.Fetch = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10105 {
