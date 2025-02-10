@@ -31,6 +31,14 @@ type UdpTxEndPack struct {
 	McallerStepId int64
 	XTraceId      string
 
+	PeakMem              int64
+	ElapsedUserCPUTime   int32
+	ElapsedSystemCPUTime int32
+	EFuncCount           int32
+	ProfEFuncCount       int32
+	IFuncCount           int32
+	ProfIFuncCount       int32
+
 	// Processing data
 	ServiceURL     *urlutil.URL
 	McallerUrlHash int32
@@ -78,6 +86,14 @@ func (this *UdpTxEndPack) Clear() {
 
 	this.McallerStepId = 0
 	this.XTraceId = ""
+
+	this.PeakMem = 0
+	this.ElapsedUserCPUTime = 0
+	this.ElapsedSystemCPUTime = 0
+	this.EFuncCount = 0
+	this.ProfEFuncCount = 0
+	this.IFuncCount = 0
+	this.ProfIFuncCount = 0
 
 	// Processing data
 	this.ServiceURL = nil
@@ -164,6 +180,17 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
 			dout.WriteTextShortLength(this.XTraceId)
 		}
+
+		if this.Ver >= 10110 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.PeakMem))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.ElapsedUserCPUTime)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.ElapsedSystemCPUTime)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.EFuncCount)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.ProfEFuncCount)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.IFuncCount)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.ProfIFuncCount)))
+		}
+
 	}
 }
 
@@ -244,6 +271,15 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		if this.Ver >= 10108 {
 			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
 			this.XTraceId = din.ReadTextShortLength()
+		}
+		if this.Ver >= 10110 {
+			this.PeakMem = stringutil.ParseInt64(din.ReadTextShortLength())
+			this.ElapsedUserCPUTime = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.ElapsedSystemCPUTime = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.EFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.ProfEFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.IFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.ProfIFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
 		}
 	}
 }
