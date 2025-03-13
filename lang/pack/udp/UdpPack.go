@@ -33,10 +33,12 @@ const (
 	TX_SQL_PARAM  uint8 = 14
 	TX_RESULT_SET uint8 = 15
 
-	TX_PARAM     uint8 = 30
-	ACTIVE_STACK uint8 = 40
-	ACTIVE_STATS uint8 = 41
-	DBCONN_POOL  uint8 = 42
+	TX_PARAM uint8 = 30
+
+	ACTIVE_STACK_1 uint8 = 39
+	ACTIVE_STACK   uint8 = 40
+	ACTIVE_STATS   uint8 = 41
+	DBCONN_POOL    uint8 = 42
 
 	// golang config
 	CONFIG_INFO uint8 = 230
@@ -162,6 +164,11 @@ var udpActiveStackPool = sync.Pool{
 		return NewUdpActiveStackPack()
 	},
 }
+var udpActiveStack1Pool = sync.Pool{
+	New: func() interface{} {
+		return NewUdpActiveStackPack1()
+	},
+}
 var udpTxParamPool = sync.Pool{
 	New: func() interface{} {
 		return NewUdpTxParamPack()
@@ -245,6 +252,11 @@ func CreatePack(t uint8, ver int32) UdpPack {
 		p.Ver = ver
 		return p
 		//return NewUdpRelayPackVer(ver)
+	case ACTIVE_STACK_1:
+		p := udpActiveStack1Pool.Get().(*UdpActiveStackPack1)
+		p.Ver = ver
+		return p
+		//return NewUdpActiveStackPackVer(ver)
 	case ACTIVE_STACK:
 		p := udpActiveStackPool.Get().(*UdpActiveStackPack)
 		p.Ver = ver
@@ -300,6 +312,8 @@ func ClosePack(p UdpPack) {
 		udpDbcPool.Put(p)
 	case RELAY_PACK:
 		udpRelayPool.Put(p)
+	case ACTIVE_STACK_1:
+		udpActiveStack1Pool.Put(p)
 	case ACTIVE_STACK:
 		udpActiveStackPool.Put(p)
 	case TX_PARAM:
