@@ -96,6 +96,9 @@ func (this *UdpTxStartPack) Write(dout *io.DataOutputX) {
 	} else if this.Ver > 20000 {
 		// Python
 		dout.WriteTextShortLength(this.IsStaticContents)
+		if this.Ver >= 20104 {
+			dout.WriteTextShortLength(stringutil.Truncate(this.HttpMethod, HTTP_METHOD_MAX_SIZE))
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10103 {
@@ -125,6 +128,9 @@ func (this *UdpTxStartPack) Read(din *io.DataInputX) {
 	} else if this.Ver > 20000 {
 		// Python
 		this.IsStaticContents = din.ReadTextShortLength()
+		if this.Ver >= 20104 {
+			this.HttpMethod = din.ReadTextShortLength()
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10103 {

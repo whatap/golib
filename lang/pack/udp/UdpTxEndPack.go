@@ -158,6 +158,9 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.McallerSpec)
 		dout.WriteTextShortLength(this.McallerUrl)
 		dout.WriteTextShortLength(this.McallerPoidKey)
+		if this.Ver >= 20104 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10102 {
@@ -207,7 +210,6 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		this.McallerSpec = din.ReadTextShortLength()
 		this.McallerUrl = din.ReadTextShortLength()
 		this.McallerPoidKey = din.ReadTextShortLength()
-
 		if this.Ver >= 50100 {
 			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
 		}
@@ -249,6 +251,9 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		this.McallerSpec = din.ReadTextShortLength()
 		this.McallerUrl = din.ReadTextShortLength()
 		this.McallerPoidKey = din.ReadTextShortLength()
+		if this.Ver >= 20104 {
+			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10102 {
