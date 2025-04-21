@@ -33,6 +33,7 @@ const (
 	TX_SQL_PARAM  uint8 = 14
 	TX_RESULT_SET uint8 = 15
 
+	TX_WEB_SOCKET uint8 = 16
 	TX_PARAM uint8 = 30
 
 	ACTIVE_STACK_1 uint8 = 39
@@ -190,6 +191,12 @@ var udpConfigPool = sync.Pool{
 	},
 }
 
+var udpWebSocketPool = sync.Pool{
+	New: func() interface{} {
+		return NewUdpTxWebSocketPack()
+	},
+}
+
 func CreatePack(t uint8, ver int32) UdpPack {
 	switch t {
 	case TX_START:
@@ -282,6 +289,11 @@ func CreatePack(t uint8, ver int32) UdpPack {
 		p.Ver = ver
 		return p
 		//return NewUdpConfigPackVer(ver)
+	case TX_WEB_SOCKET:
+		p := udpWebSocketPool.Get().(*UdpTxWebSocketPack)
+		p.Ver = ver
+		return p
+		//return NewUdpTxWebSocketPackVer(ver)
 	}
 	return nil
 }
@@ -324,6 +336,8 @@ func ClosePack(p UdpPack) {
 		udpDBConPool.Put(p)
 	case CONFIG_INFO:
 		udpConfigPool.Put(p)
+	case TX_WEB_SOCKET:
+		udpWebSocketPool.Put(p)
 	}
 }
 
