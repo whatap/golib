@@ -13,6 +13,9 @@ type MethodStepX struct {
 	StartMem int32
 
 	Stack []int32
+
+	Component string
+	Exception string
 }
 
 func NewMethodStepX() *MethodStepX {
@@ -25,24 +28,41 @@ func (this *MethodStepX) GetStepType() byte {
 
 func (this *MethodStepX) Write(out *io.DataOutputX) {
 	this.AbstractStep.Write(out)
-	out.WriteByte(0)
+	if this.Component == "" {
+		out.WriteByte(0)
 
-	out.WriteDecimal(int64(this.Hash))
-	out.WriteDecimal(int64(this.Elapsed))
-	out.WriteDecimal(int64(this.StartCpu))
-	out.WriteDecimal(int64(this.StartMem))
-	out.WriteIntArray(this.Stack)
+		out.WriteDecimal(int64(this.Hash))
+		out.WriteDecimal(int64(this.Elapsed))
+		out.WriteDecimal(int64(this.StartCpu))
+		out.WriteDecimal(int64(this.StartMem))
+		out.WriteIntArray(this.Stack)
+	} else {
+		out.WriteByte(1)
+
+		out.WriteDecimal(int64(this.Hash))
+		out.WriteDecimal(int64(this.Elapsed))
+		out.WriteDecimal(int64(this.StartCpu))
+		out.WriteDecimal(int64(this.StartMem))
+		out.WriteIntArray(this.Stack)
+		out.WriteText(this.Component)
+		out.WriteText(this.Exception)
+	}
 }
 
 func (this *MethodStepX) Read(in *io.DataInputX) {
 	this.AbstractStep.Read(in)
-	in.ReadByte()
+	ver := in.ReadByte()
 
 	this.Hash = int32(in.ReadDecimal())
 	this.Elapsed = int32(in.ReadDecimal())
 	this.StartCpu = int32(in.ReadDecimal())
 	this.StartMem = int32(in.ReadDecimal())
 	this.Stack = in.ReadIntArray()
+	if ver == 0 {
+		return
+	}
+	this.Component = in.ReadText()
+	this.Exception = in.ReadText()
 }
 
 func (this *MethodStepX) GetElapsed() int32 {

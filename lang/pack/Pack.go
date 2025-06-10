@@ -2,6 +2,7 @@ package pack
 
 import (
 	"github.com/whatap/golib/io"
+	"github.com/whatap/golib/lang/pack/open"
 )
 
 const (
@@ -57,10 +58,15 @@ const (
 	//PACK_HITMAP    		= 0x1500
 	// 5377
 	PACK_HITMAP_1 = 0x1501
+	HITVIEW       = 0x1506
 	// 5632
 	PACK_EXTENSION = 0x1600
 	TAG_COUNT      = 0x1601
 	TAG_LOG        = 0x1602
+
+	// To avoid cycle import errors, move open.Packenum
+	// PACK_OPEN_MX_PACK      = 0x1603
+	// PACK_OPEN_MX_HELP_PACK = 0x1604
 
 	// 5888
 	PACK_COMPOSITE = 0x1700
@@ -178,6 +184,10 @@ func CreatePack(t int16) Pack {
 		return NewTagCountPack()
 	case TAG_LOG:
 		return NewTagLogPack()
+	case open.PACK_OPEN_MX_HELP_PACK:
+		return open.NewOpenMxHelpPack()
+	case open.PACK_OPEN_MX_PACK:
+		return open.NewOpenMxPack()
 	case PACK_COMPOSITE:
 		return NewCompositePack()
 	// case PACK_ADDIN_COUNT:
@@ -273,6 +283,10 @@ func GetPackTypeString(t int16) string {
 		return "TagCountPack"
 		//		case TAG_LOG:
 		//		return NewTagLogPack()
+	case open.PACK_OPEN_MX_HELP_PACK:
+		return "OpenMxHelpPack"
+	case open.PACK_OPEN_MX_PACK:
+		return "OpenMxPack"
 	case PACK_COMPOSITE:
 		return "CompositePack"
 		//	case PACK_BSM_RECORD:

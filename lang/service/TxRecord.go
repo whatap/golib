@@ -77,6 +77,14 @@ type TxRecord struct {
 	OriginUrl     string
 
 	StepSplitCount int
+
+	MethodCount int
+	MethodTime  int
+	AppCtx      string
+
+	TxName       string
+	ErrorClass   string
+	ErrorMessage string
 }
 
 func NewTxRecord() *TxRecord {
@@ -193,6 +201,17 @@ func (this *TxRecord) Write(dout *io.DataOutputX) {
 	o.WriteText(this.OriginUrl)
 
 	o.WriteDecimal(int64(this.StepSplitCount))
+
+	// 2025.02.05 , java 2023.07.24
+	o.WriteDecimal(int64(this.MethodCount))
+	o.WriteDecimal(int64(this.MethodTime))
+
+	o.WriteText(this.AppCtx)
+	o.WriteText(this.TxName)
+
+	// 2025.02.05 , java 2025.1.3
+	o.WriteText(this.ErrorClass)
+	o.WriteText(this.ErrorMessage)
 
 	////////////// BLOB ///////////////
 	dout.WriteBlob(o.ToByteArray())
@@ -314,6 +333,22 @@ func (this *TxRecord) Read(din *io.DataInputX) *TxRecord {
 
 	//if (in.available() > 0) {
 	this.StepSplitCount = int(in.ReadDecimal())
+
+	//2023.07.24
+	// if (in.available() > 0) {
+	this.MethodCount = int(in.ReadDecimal())
+	this.MethodTime = int(in.ReadDecimal())
+
+	// if (in.available() > 0) {
+	this.AppCtx = in.ReadText()
+
+	// if (in.available() > 0) {
+	this.TxName = in.ReadText()
+
+	// 2025.02.05 , java 2025.1.3
+	// if (in.available() > 0) {
+	this.ErrorClass = in.ReadText()
+	this.ErrorMessage = in.ReadText()
 
 	return this
 }
