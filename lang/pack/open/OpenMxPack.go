@@ -22,7 +22,7 @@ func NewOpenMxPack() *OpenMxPack {
 	return p
 }
 func (this *OpenMxPack) GetPackType() int16 {
-	return PACK_OPEN_MX_HELP_PACK
+	return PACK_OPEN_MX_PACK
 }
 
 func (this *OpenMxPack) ToStrint() string {

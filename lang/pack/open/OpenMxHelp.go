@@ -27,7 +27,7 @@ func (this *OpenMxHelp) Write(o *io.DataOutputX) {
 	//version
 	o.WriteByte(0)
 	o.WriteText(this.Metric)
-	this.property.Write(o)
+	langvalue.WriteMapValue(o, this.property)
 }
 
 func (this *OpenMxHelp) Read(in *io.DataInputX) *OpenMxHelp {
@@ -35,9 +35,7 @@ func (this *OpenMxHelp) Read(in *io.DataInputX) *OpenMxHelp {
 	// ver := in.ReadByte()
 	_ = in.ReadByte()
 	this.Metric = in.ReadText()
-	m := langvalue.NewMapValue()
-	m.Read(in)
-	this.property = m
+	this.property = langvalue.ReadMapValue(in)
 	return this
 }
 

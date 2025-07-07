@@ -1,6 +1,8 @@
 package open
 
 import (
+	"fmt"
+
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/util/dateutil"
 	"github.com/whatap/golib/util/stringutil"
@@ -46,6 +48,10 @@ func (this *OpenMx) AddLabel(k, v string) {
 	this.label = append(this.label, NewLabel(k, v))
 }
 
+func (this *OpenMx) SetVal(v float64) {
+	this.val = v
+}
+
 func (this *OpenMx) Write(o *io.DataOutputX) {
 	o.WriteByte(0) // version
 	o.WriteText(this.Metric)
@@ -83,7 +89,7 @@ func (this *OpenMx) String() string {
 	sb.Append("OpenMx [")
 	sb.Append(this.Metric)
 	if this.label != nil && len(this.label) > 0 {
-		sb.Append("label:[")
+		sb.Append(" label:[")
 		for _, it := range this.label {
 			sb.Append(it.String()).Append(",")
 		}
@@ -91,6 +97,6 @@ func (this *OpenMx) String() string {
 	}
 	sb.Append(" ")
 	sb.Append(dateutil.TimeStamp(this.timestamp))
-
+	sb.Append(fmt.Sprintf(" value: %f", this.val))
 	return sb.ToString()
 }
