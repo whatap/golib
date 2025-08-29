@@ -20,6 +20,25 @@ import (
 	"github.com/whatap/golib/util/stringutil"
 )
 
+// ExecuteShellCommand executes a single-line shell script and returns its combined output.
+// It uses "sh -c" to ensure shell features like pipes and redirection are supported.
+func ExecuteShellCommand(script string) (string, error) {
+	// Use "sh -c" to interpret the script string.
+	cmd := exec.Command("sh", "-c", script)
+
+	// cmd.CombinedOutput() runs the command and returns a byte slice
+	// containing both standard output and standard error.
+	combinedOutput, err := cmd.CombinedOutput()
+	if err != nil {
+		// If the command fails, return a wrapped error with the output
+		// for better debugging.
+		return "", fmt.Errorf("command failed: %w\nOutput: %s", err, combinedOutput)
+	}
+
+	// Convert the byte slice to a string and return it.
+	return string(combinedOutput), nil
+}
+
 // Pipeline strings together the given exec.Cmd commands in a similar fashion
 // to the Unix pipeline.  Each command's standard output is connected to the
 // standard input of the next command, and the output of the final command in

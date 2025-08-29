@@ -3,8 +3,10 @@ package fileutil
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net"
 	"os"
+	"path/filepath"
 )
 
 func CloseOfDatagramSocket(udp *net.UDPConn) error {
@@ -43,7 +45,7 @@ func Info(filename string) (os.FileInfo, error) {
 	return info, nil
 }
 
-//ReadFile get file content
+// ReadFile get file content
 func ReadFile(filepath string, maxlength int64) ([]byte, int64, error) {
 	f, e := os.Open(filepath)
 	if e != nil {
@@ -51,14 +53,22 @@ func ReadFile(filepath string, maxlength int64) ([]byte, int64, error) {
 	}
 	defer f.Close()
 	var output bytes.Buffer
-	buf := make([]byte, 4096)
 	nbyteuntilnow := int64(0)
-	for nbyteleft := maxlength; nbyteleft > 0; {
+
+	// 버퍼를 동적으로 할당하여 필요한 만큼만 읽도록 수정
+	for nbyteuntilnow < maxlength {
+		// 남은 바이트와 기본 버퍼 크기 중 작은 값을 선택
+		n := int64(4096)
+		if n > maxlength-nbyteuntilnow {
+			n = maxlength - nbyteuntilnow
+		}
+		buf := make([]byte, n)
+
 		nbytethistime, e := f.Read(buf)
 		if nbytethistime == 0 || e != nil {
 			break
 		}
-		nbyteleft -= int64(nbytethistime)
+
 		nbyteuntilnow += int64(nbytethistime)
 		output.Write(buf[:nbytethistime])
 	}
@@ -67,7 +77,61 @@ func ReadFile(filepath string, maxlength int64) ([]byte, int64, error) {
 		return output.Bytes(), nbyteuntilnow, nil
 	}
 
-	return nil, 0, e
+	// 파일 내용이 0바이트인 경우 nil, 0, nil 반환
+	// 에러가 없었으므로 e는 nil이 되어야 함
+	return nil, 0, nil
+}
+
+// readEntireFile는 주어진 파일 경로의 내용을 모두 읽어 문자열로 반환합니다.
+// 파일이 크더라도 메모리에 한 번에 모두 로드하여 처리합니다.
+func ReadEntireFile(filePath string) (string, error) {
+	// os.ReadFile을 사용하여 파일의 전체 내용을 바이트 슬라이스로 읽습니다.
+	// 이 함수는 파일의 전체 내용을 한 번에 읽으므로, 파일이 매우 크다면 메모리 사용에 주의해야 합니다.
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("An error occurred while reading the file: %w", err)
+	}
+
+	// 읽어 들인 바이트 슬라이스를 문자열로 변환하여 반환합니다.
+	return string(data), nil
+}
+
+// replaceFileWithOldBackup은 기존 파일을 새로운 내용으로 교체하고,
+// 기존 파일은 old 파일로 백업합니다.
+func ReplaceFileWithOldBackup(filePath, content string) error {
+	// 1. 임시 파일 생성
+	// filepath.Dir(filePath)를 사용하여 기존 파일이 있는 디렉토리에 임시 파일을 만듭니다.
+	// .tmp 접미사를 사용하여 임시 파일임을 명확히 합니다.
+	tmpFile, err := os.CreateTemp(filepath.Dir(filePath), "temp-*.tmp")
+	if err != nil {
+		return fmt.Errorf("Failed to create temporary file: %w", err)
+	}
+	// 함수 종료 시 임시 파일이 삭제되도록 defer를 사용합니다.
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	// 2. 임시 파일에 새 내용 쓰기
+	if _, err := io.WriteString(tmpFile, content); err != nil {
+		return fmt.Errorf("Failed to write temporary file: %w", err)
+	}
+
+	// 3. 기존 파일이 이미 있는지 확인하고, 있다면 old 파일로 백업
+	oldFilePath := filePath + ".old"
+	if _, err := os.Stat(filePath); err == nil {
+		// 파일이 존재하면 백업 파일(old)로 이름을 바꿉니다.
+		// 만약 이미 old 파일이 있다면 덮어씁니다.
+		if err := os.Rename(filePath, oldFilePath); err != nil {
+			return fmt.Errorf("Failed to back up existing files: %w", err)
+		}
+		// 백업 파일이 더 이상 필요하지 않다면 os.Remove(oldFilePath)를 추가할 수 있습니다.
+	}
+
+	// 4. 임시 파일의 이름을 기존 파일 이름으로 변경
+	if err := os.Rename(tmpFile.Name(), filePath); err != nil {
+		return fmt.Errorf("Failed to rename temporary file: %w", err)
+	}
+
+	return nil
 }
 
 //

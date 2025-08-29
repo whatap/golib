@@ -20,4 +20,9 @@ const (
 	APP_TYPE_BSM_PHP    = 21
 	APP_TYPE_BSM_DOTNET = 22
 	APP_TYPE_BSM_GO     = 23
+
+	// open sw , fluent-bit log
+	APP_TYPE_OSS      = 30
+	APP_TYPE_OSS_LOG  = 31
+	APP_TYPE_OSS_SBOM = 32
 )
