@@ -132,7 +132,9 @@ func (this *UdpTxStartEndPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(this.UAgent)
 	dout.WriteTextShortLength(this.Ref)
 	dout.WriteTextShortLength(this.WClientId)
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(this.HttpMethod)
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))

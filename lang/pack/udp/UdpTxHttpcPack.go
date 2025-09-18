@@ -59,7 +59,10 @@ func (this *UdpTxHttpcPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
 	dout.WriteTextShortLength(this.Url)
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.StepId))
+	} else if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.StepId))
 		dout.WriteTextShortLength(this.ErrorType)
@@ -93,7 +96,10 @@ func (this *UdpTxHttpcPack) Read(din *io.DataInputX) {
 
 	this.Url = din.ReadTextShortLength()
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+		this.StepId = stringutil.ParseInt64(din.ReadTextShortLength())
+	} else if this.Ver > 50000 {
 		// Golang
 		this.StepId = stringutil.ParseInt64(din.ReadTextShortLength())
 		this.ErrorType = din.ReadTextShortLength()
@@ -125,7 +131,9 @@ func (this *UdpTxHttpcPack) Read(din *io.DataInputX) {
 
 func (this *UdpTxHttpcPack) Process() {
 	this.HttpcURL = urlutil.NewURL(this.Url)
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch

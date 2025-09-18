@@ -53,8 +53,9 @@ func (this *UdpTxWebSocketPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Elapsed)))
 	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Error)))
 
-
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
@@ -74,7 +75,9 @@ func (this *UdpTxWebSocketPack) Read(din *io.DataInputX) {
 	this.Elapsed = stringutil.ParseInt32(din.ReadTextShortLength())
 	this.Error = stringutil.ParseInt64(din.ReadTextShortLength())
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch

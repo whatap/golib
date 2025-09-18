@@ -70,7 +70,9 @@ func (this *UdpConfigPack) Process() {
 		}
 	}
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golnag
 	} else if this.Ver > 40000 {
 		// Batch

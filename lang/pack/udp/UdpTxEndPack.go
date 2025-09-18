@@ -107,7 +107,18 @@ func (this *UdpTxEndPack) SetMcallerUrlHash(v int32) {
 
 func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// NodeJS
+		dout.WriteTextShortLength(this.Host)
+		dout.WriteTextShortLength(this.Uri)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mtid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Mdepth)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerTxid)))
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.McallerPcode)))
+		dout.WriteTextShortLength(this.McallerSpec)
+		dout.WriteTextShortLength(this.McallerUrl)
+		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+	} else if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(this.Host)
 		dout.WriteTextShortLength(this.Uri)
@@ -199,7 +210,19 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 
 func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 	this.AbstractPack.Read(din)
-	if this.Ver > 50000 {
+
+	if this.Ver > 60000 {
+		// NodeJS
+		this.Host = din.ReadTextShortLength()
+		this.Uri = din.ReadTextShortLength()
+		this.Mtid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.Mdepth = stringutil.ParseInt32(din.ReadTextShortLength())
+		this.McallerTxid = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerPcode = stringutil.ParseInt64(din.ReadTextShortLength())
+		this.McallerSpec = din.ReadTextShortLength()
+		this.McallerUrl = din.ReadTextShortLength()
+		this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+	} else if this.Ver > 50000 {
 		// Golang
 		this.Host = din.ReadTextShortLength()
 		this.Uri = din.ReadTextShortLength()
@@ -297,7 +320,12 @@ func (this *UdpTxEndPack) Process() {
 			this.ServiceURL = urlutil.NewURL(this.Host + "/" + this.Uri)
 		}
 	}
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// NodeJS
+		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
+			this.McallerUrlHash = int32(ret)
+		}
+	} else if this.Ver > 50000 {
 		// Golang
 		if ret, err := strconv.ParseInt(this.McallerUrl, 10, 32); err == nil {
 			this.McallerUrlHash = int32(ret)

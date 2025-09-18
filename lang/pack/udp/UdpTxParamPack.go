@@ -119,7 +119,9 @@ func (this *UdpTxParamPack) Process() {
 	//
 	//		// Send Data
 	//		data.Send(ParseMapValue(param, strDatas))
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch

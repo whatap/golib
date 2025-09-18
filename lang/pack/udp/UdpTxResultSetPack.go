@@ -51,7 +51,9 @@ func (this *UdpTxResultSetPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(this.Sql)
 	dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Fetch)))
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 
 	} else if this.Ver > 40000 {
@@ -75,7 +77,9 @@ func (this *UdpTxResultSetPack) Read(din *io.DataInputX) {
 	this.Sql = din.ReadTextShortLength()
 	this.Fetch = stringutil.ParseInt32(din.ReadTextShortLength())
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
@@ -90,7 +94,9 @@ func (this *UdpTxResultSetPack) Read(din *io.DataInputX) {
 
 func (this *UdpTxResultSetPack) Process() {
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch

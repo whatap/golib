@@ -25,4 +25,8 @@ const (
 	APP_TYPE_OSS      = 30
 	APP_TYPE_OSS_LOG  = 31
 	APP_TYPE_OSS_SBOM = 32
+
+	SUBTYPE_LOG_FLUENT_BIT_AGENT = 1
+	SUBTYPE_OSS                  = 0
+	SUBTYPE_OSS_LOG              = 1
 )

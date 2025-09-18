@@ -54,7 +54,9 @@ func (this *UdpTxDbcPack) Write(dout *io.DataOutputX) {
 	this.AbstractPack.Write(dout)
 	dout.WriteTextShortLength(this.Dbc)
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(this.ErrorType)
 		dout.WriteTextShortLength(this.ErrorMessage)
@@ -83,7 +85,9 @@ func (this *UdpTxDbcPack) Read(din *io.DataInputX) {
 
 	this.Dbc = din.ReadTextShortLength()
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 		this.ErrorType = din.ReadTextShortLength()
 		this.ErrorMessage = din.ReadTextShortLength()
@@ -107,7 +111,9 @@ func (this *UdpTxDbcPack) Read(din *io.DataInputX) {
 	}
 }
 func (this *UdpTxDbcPack) Process() {
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 		if this.Dbc != "" {
 			p := paramtext.NewParamKVSeperate(this.Dbc, " ", "=")

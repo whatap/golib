@@ -65,7 +65,9 @@ func (this *UdpTxSqlParamPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(this.ErrorMessage)
 	dout.WriteTextShortLength(this.Stack)
 
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
@@ -87,7 +89,9 @@ func (this *UdpTxSqlParamPack) Read(din *io.DataInputX) {
 	this.ErrorType = din.ReadTextShortLength()
 	this.ErrorMessage = din.ReadTextShortLength()
 	this.Stack = din.ReadTextShortLength()
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
@@ -102,7 +106,9 @@ func (this *UdpTxSqlParamPack) Read(din *io.DataInputX) {
 }
 
 func (this *UdpTxSqlParamPack) Process() {
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 		if this.Dbc != "" {
 			p := paramtext.NewParamKVSeperate(this.Dbc, " ", "=")

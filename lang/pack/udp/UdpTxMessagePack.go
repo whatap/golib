@@ -53,7 +53,9 @@ func (this *UdpTxMessagePack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(stringutil.Truncate(this.Hash, HTTP_URI_MAX_SIZE))
 	dout.WriteTextShortLength(this.Value)
 	dout.WriteTextShortLength(stringutil.Truncate(this.Desc, PACKET_MESSAGE_MAX_SIZE))
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
@@ -72,7 +74,9 @@ func (this *UdpTxMessagePack) Read(din *io.DataInputX) {
 	this.Hash = din.ReadTextShortLength()
 	this.Value = din.ReadTextShortLength()
 	this.Desc = din.ReadTextShortLength()
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
@@ -85,7 +89,9 @@ func (this *UdpTxMessagePack) Read(din *io.DataInputX) {
 	}
 }
 func (this *UdpTxMessagePack) Process() {
-	if this.Ver > 50000 {
+	if this.Ver > 60000 {
+		// Node.js
+	} else if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch
