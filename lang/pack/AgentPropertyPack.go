@@ -7,53 +7,52 @@ import (
 
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/lang/value"
+	"github.com/whatap/golib/util/castutil"
+	"github.com/whatap/golib/util/hmap"
 )
 
 type AgentPropertyPack struct {
 	AbstractPack
-	ctr   map[string]string
-	table map[string]string
+	ctr   *hmap.StringKeyLinkedMap
+	table *hmap.StringKeyLinkedMap
 }
 
 func NewAgentPropertyPack() *AgentPropertyPack {
-	p := &AgentPropertyPack{
-		ctr:   make(map[string]string),
-		table: make(map[string]string),
-	}
+	p := new(AgentPropertyPack)
+	p.ctr = hmap.NewStringKeyLinkedMap()
+	p.table = hmap.NewStringKeyLinkedMap()
 	return p
 }
 
 func (this *AgentPropertyPack) Size() int {
-	return len(this.table)
+	return this.table.Size()
 }
 
 func (this *AgentPropertyPack) IsEmpty() bool {
-	return len(this.table) == 0
+	return this.table.Size() == 0
 }
 
 func (this *AgentPropertyPack) ContainsKey(key string) bool {
-	_, exists := this.table[key]
-	return exists
+	return this.table.ContainsKey(key)
 }
 
-func (this *AgentPropertyPack) Keys() []string {
-	keys := make([]string, 0, len(this.table))
-	for k := range this.table {
-		keys = append(keys, k)
-	}
-	return keys
-}
-
-func (this *AgentPropertyPack) Get(key string) string {
-	return this.table[key]
+func (this *AgentPropertyPack) Keys() hmap.StringEnumer {
+	return this.table.Keys()
 }
 
 func (this *AgentPropertyPack) GetPropertyAsMapValue() *value.MapValue {
 	m := value.NewMapValue()
-	for key, val := range this.table {
+	en := this.table.Keys()
+	for en.HasMoreElements() {
+		key := en.NextString()
+		val := this.table.GetString(key)
 		m.PutString(key, val)
 	}
 	return m
+}
+
+func (this *AgentPropertyPack) Get(key string) string {
+	return this.table.GetString(key)
 }
 
 func (this *AgentPropertyPack) GetInt(key string) int32 {
@@ -66,22 +65,16 @@ func (this *AgentPropertyPack) GetInt(key string) int32 {
 
 func (this *AgentPropertyPack) GetLong(key string) int64 {
 	v := this.Get(key)
-	if i, err := strconv.ParseInt(v, 10, 64); err == nil {
-		return i
-	}
-	return 0
+	return castutil.CLong(v)
 }
 
 func (this *AgentPropertyPack) GetFloat(key string) float32 {
 	v := this.Get(key)
-	if f, err := strconv.ParseFloat(v, 32); err == nil {
-		return float32(f)
-	}
-	return 0.0
+	return castutil.CFloat(v)
 }
 
 func (this *AgentPropertyPack) Put(key string, value string) {
-	this.table[key] = value
+	this.table.Put(key, value)
 }
 
 func (this *AgentPropertyPack) PutAll(m *value.MapValue) {
@@ -92,32 +85,35 @@ func (this *AgentPropertyPack) PutAll(m *value.MapValue) {
 	for keys.HasMoreElements() {
 		key := keys.NextString()
 		val := m.Get(key)
-		this.table[key] = castutil.cString(val)
+		this.table.Put(key, castutil.CString(val))
 	}
 }
 
-func (this *AgentPropertyPack) PutAllMap(m map[string]string) {
+func (this *AgentPropertyPack) PutAllMap(m *hmap.StringKeyLinkedMap) {
 	if m != nil {
-		for k, v := range m {
-			this.table[k] = v
+		en := m.Keys()
+		for en.HasMoreElements() {
+			key := en.NextString()
+			val := castutil.CString(m.Get(key))
+			this.table.Put(key, val)
 		}
 	}
 }
 
 func (this *AgentPropertyPack) Remove(key string) {
-	delete(this.table, key)
+	this.table.Remove(key)
 }
 
 func (this *AgentPropertyPack) Clear() {
-	this.table = make(map[string]string)
+	this.table.Clear()
 }
 
 func (this *AgentPropertyPack) PutCtr(key string, value string) {
-	this.ctr[key] = value
+	this.ctr.Put(key, value)
 }
 
 func (this *AgentPropertyPack) GetCtr(key string) string {
-	return this.ctr[key]
+	return castutil.CString(this.ctr.Get(key))
 }
 
 func (this *AgentPropertyPack) String() string {
@@ -126,7 +122,10 @@ func (this *AgentPropertyPack) String() string {
 	buf.WriteString(fmt.Sprintf("pcode=%d,oid=%d,okind=%d,onode=%d",
 		this.Pcode, this.Oid, this.Okind, this.Onode))
 
-	for key, val := range this.table {
+	en := this.table.Keys()
+	for en.HasMoreElements() {
+		key := en.NextString()
+		val := castutil.CString(this.table.Get(key))
 		buf.WriteString(fmt.Sprintf(" %s=%s", key, val))
 	}
 	return buf.String()
@@ -134,7 +133,10 @@ func (this *AgentPropertyPack) String() string {
 
 func (this *AgentPropertyPack) ToPropertyString() string {
 	var buf strings.Builder
-	for key, val := range this.table {
+	en := this.table.Keys()
+	for en.HasMoreElements() {
+		key := en.NextString()
+		val := this.table.GetString(key)
 		buf.WriteString(fmt.Sprintf(" %s=%s", key, val))
 	}
 	return buf.String()
@@ -151,9 +153,12 @@ func (this *AgentPropertyPack) Write(dout *io.DataOutputX) {
 	this.writeTable(dout, this.table)
 }
 
-func (this *AgentPropertyPack) writeTable(dout *io.DataOutputX, t map[string]string) {
-	dout.WriteDecimal(int64(len(t)))
-	for key, val := range t {
+func (this *AgentPropertyPack) writeTable(dout *io.DataOutputX, t *hmap.StringKeyLinkedMap) {
+	dout.WriteDecimal(int64(t.Size()))
+	en := t.Keys()
+	for en.HasMoreElements() {
+		key := en.NextString()
+		val := castutil.CString(t.Get(key))
 		dout.WriteText(key)
 		dout.WriteText(val)
 	}
@@ -166,13 +171,13 @@ func (this *AgentPropertyPack) Read(din *io.DataInputX) {
 	this.table = this.readTable(din)
 }
 
-func (this *AgentPropertyPack) readTable(din *io.DataInputX) map[string]string {
-	o := make(map[string]string)
+func (this *AgentPropertyPack) readTable(din *io.DataInputX) *hmap.StringKeyLinkedMap {
+	o := hmap.NewStringKeyLinkedMap()
 	sz := int(din.ReadDecimal())
 	for i := 0; i < sz; i++ {
 		k := din.ReadText()
 		v := din.ReadText()
-		o[k] = v
+		o.Put(k, v)
 	}
 	return o
 }
@@ -188,7 +193,10 @@ func (this *AgentPropertyPack) SetMapValue(mapValue *value.MapValue) *AgentPrope
 func (this *AgentPropertyPack) ToFormatString() string {
 	var buf strings.Builder
 	buf.WriteString(this.AbstractPack.ToString())
-	for key, val := range this.table {
+	en := this.table.Keys()
+	for en.HasMoreElements() {
+		key := en.NextString()
+		val := castutil.CString(this.table.Get(key))
 		buf.WriteString(fmt.Sprintf("\t%s=%s\n", key, val))
 	}
 	return buf.String()
