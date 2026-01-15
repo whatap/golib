@@ -136,7 +136,7 @@ func (this *AgentPropertyPack) ToPropertyString() string {
 	en := this.table.Keys()
 	for en.HasMoreElements() {
 		key := en.NextString()
-		val := this.table.GetString(key)
+		val := castutil.CString(this.table.Get(key))
 		buf.WriteString(fmt.Sprintf(" %s=%s", key, val))
 	}
 	return buf.String()
