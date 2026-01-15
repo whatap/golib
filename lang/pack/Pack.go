@@ -86,6 +86,7 @@ const (
 	PACK_ZIP               = 0x170b
 	PACK_AGENT_MAPPING     = 0x170c
 	PACK_LOGSINK_ZIP       = 0x170d
+	PACK_AGENT_PROPERTY    = 0x170e
 
 	//	// 12288
 	//	PACK_SM_BASE       = 0x3000
@@ -198,6 +199,8 @@ func CreatePack(t int16) Pack {
 		return NewZipPack()
 	case PACK_LOGSINK_ZIP:
 		return NewLogSinkZipPack()
+	case PACK_AGENT_PROPERTY:
+		return NewAgentPropertyPack()
 
 	case PACK_SERVERINFO:
 		return NewServerInfoPack()
@@ -301,6 +304,8 @@ func GetPackTypeString(t int16) string {
 		return "ZipPack"
 	case PACK_LOGSINK_ZIP:
 		return "LogsinkZipPack"
+	case PACK_AGENT_PROPERTY:
+		return "AgentPropertyPack"
 
 	}
 	return "Unknown"
