@@ -49,9 +49,7 @@ func (this *UdpActiveStackPack1) Read(din *io.DataInputX) {
 }
 
 func (this *UdpActiveStackPack1) Process() {
-	if this.Ver > 60000 {
-		// Node.js
-	} else if this.Ver > 50000 {
+	if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch

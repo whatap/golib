@@ -65,9 +65,7 @@ func (this *UdpActiveStatsPack) Process() {
 		this.ActiveStats = activeStats
 	}
 
-	if this.Ver > 60000 {
-		// Node.js
-	} else if this.Ver > 50000 {
+	if this.Ver > 50000 {
 		// Golang
 	} else if this.Ver > 40000 {
 		// Batch

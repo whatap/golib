@@ -45,10 +45,7 @@ func (this *AbstractPack) Write(dout *io.DataOutputX) {
 	dout.WriteInt(this.Elapsed)
 	dout.WriteLong(this.Cpu)
 	dout.WriteLong(this.Mem)
-
-	if this.Ver > 60000 {
-		dout.WriteInt(this.Pid)
-	} else if this.Ver > 50000 {
+	if this.Ver > 50000 {
 		// Golang
 		dout.WriteInt(this.Pid)
 		dout.WriteLong(this.ThreadId)
@@ -85,10 +82,7 @@ func (this *AbstractPack) Read(din *io.DataInputX) {
 	this.Cpu = din.ReadLong()
 	this.Mem = din.ReadLong()
 
-	if this.Ver > 60000 {
-		// Node.js
-		this.Pid = din.ReadInt()
-	} else if this.Ver > 50000 {
+	if this.Ver > 50000 {
 		// Golang
 		this.Pid = din.ReadInt()
 		this.ThreadId = din.ReadLong()

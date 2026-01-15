@@ -85,11 +85,7 @@ func (this *UdpTxStartPack) Write(dout *io.DataOutputX) {
 	dout.WriteTextShortLength(stringutil.Truncate(this.UAgent, HTTP_UA_MAX_SIZE))
 	dout.WriteTextShortLength(stringutil.Truncate(this.Ref, HTTP_REF_MAX_SIZE))
 	dout.WriteTextShortLength(stringutil.Truncate(this.WClientId, HTTP_URI_MAX_SIZE))
-
-	if this.Ver > 60000 {
-		dout.WriteTextShortLength(this.IsStaticContents)
-		dout.WriteTextShortLength(stringutil.Truncate(this.HttpMethod, HTTP_METHOD_MAX_SIZE))
-	} else if this.Ver > 50000 {
+	if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(stringutil.Truncate(this.HttpMethod, HTTP_METHOD_MAX_SIZE))
 	} else if this.Ver > 40000 {
@@ -121,10 +117,7 @@ func (this *UdpTxStartPack) Read(din *io.DataInputX) {
 	this.Ref = din.ReadTextShortLength()
 	this.WClientId = din.ReadTextShortLength()
 
-	if this.Ver > 60000 {
-		this.IsStaticContents = din.ReadTextShortLength()
-		this.HttpMethod = din.ReadTextShortLength()
-	} else if this.Ver > 50000 {
+	if this.Ver > 50000 {
 		// Golang
 		this.HttpMethod = din.ReadTextShortLength()
 	} else if this.Ver > 40000 {
