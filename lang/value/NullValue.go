@@ -29,3 +29,7 @@ func (this *NullValue) GetValueType() byte {
 }
 func (this *NullValue) Write(out *io.DataOutputX) {}
 func (this *NullValue) Read(in *io.DataInputX)    {}
+
+func (this *NullValue) String() string {
+	return "null"
+}

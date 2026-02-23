@@ -1,6 +1,8 @@
 package value
 
 import (
+	"strconv"
+
 	"github.com/whatap/golib/io"
 )
 
@@ -49,4 +51,8 @@ func (this *IntValue) Write(out *io.DataOutputX) {
 
 func (this *IntValue) Read(in *io.DataInputX) {
 	this.Val = in.ReadInt()
+}
+
+func (this *IntValue) String() string {
+	return strconv.FormatInt(int64(this.Val), 10)
 }

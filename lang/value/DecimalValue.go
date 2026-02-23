@@ -1,6 +1,8 @@
 package value
 
 import (
+	"strconv"
+
 	"github.com/whatap/golib/io"
 )
 
@@ -49,4 +51,7 @@ func (this *DecimalValue) Write(out *io.DataOutputX) {
 
 func (this *DecimalValue) Read(in *io.DataInputX) {
 	this.Val = in.ReadDecimal()
+}
+func (this *DecimalValue) String() string {
+	return strconv.FormatInt(this.Val, 10)
 }

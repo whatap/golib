@@ -287,6 +287,7 @@ func (this *OneWayTcpClient) process() {
 					continue
 				}
 			}
+			now := dateutil.SystemNow()
 			if tmp := this.Queue.GetTimeout(int(queueMaxWaitTime)); tmp != nil {
 				if tcpSend, ok := tmp.(*wnet.TcpSend); ok {
 					dout := this.makeData(tcpSend)
@@ -295,10 +296,20 @@ func (this *OneWayTcpClient) process() {
 						_ = this.Close()
 						//return err
 					}
-					if tcpSend.Flush || this.lastTime-this.flushMaxWaitTime > 5000 {
+					if tcpSend.Flush || now-this.lastTime > this.flushMaxWaitTime {
 						if _, err := this.Flush(); err != nil {
 							this.Close()
+						} else {
+							this.lastTime = now
 						}
+					}
+				}
+			} else {
+				if this.wr.Buffered() > 0 {
+					if _, err := this.Flush(); err != nil {
+						this.Close()
+					} else {
+						this.lastTime = now
 					}
 				}
 			}

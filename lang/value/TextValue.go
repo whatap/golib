@@ -46,3 +46,6 @@ func (this *TextValue) Write(out *io.DataOutputX) {
 func (this *TextValue) Read(in *io.DataInputX) {
 	this.Val = in.ReadText()
 }
+func (this *TextValue) String() string {
+	return this.Val
+}

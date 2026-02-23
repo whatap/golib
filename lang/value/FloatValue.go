@@ -1,6 +1,8 @@
 package value
 
 import (
+	"strconv"
+
 	"github.com/whatap/golib/io"
 )
 
@@ -47,4 +49,8 @@ func (this *FloatValue) Write(out *io.DataOutputX) {
 }
 func (this *FloatValue) Read(in *io.DataInputX) {
 	this.Val = in.ReadFloat()
+}
+
+func (this *FloatValue) String() string {
+	return strconv.FormatFloat(float64(this.Val), 'f', 7, 32)
 }

@@ -67,7 +67,10 @@ func (this *ParamPack) Put(key string, value val.Value) {
 	this.table.Put(key, value)
 }
 func (this *ParamPack) Clear() {
-	this.Clear()
+	this.table.Clear()
+}
+func (this *ParamPack) Remove(key string) {
+	this.table.Remove(key)
 }
 func (this *ParamPack) Size() {
 	this.table.Size()
