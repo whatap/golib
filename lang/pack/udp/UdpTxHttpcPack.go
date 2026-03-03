@@ -13,6 +13,7 @@ type UdpTxHttpcPack struct {
 	// Pack
 	Url          string
 	StepId       int64
+	Driver       string
 	ErrorType    string
 	ErrorMessage string
 	Stack        string
@@ -47,6 +48,7 @@ func (this *UdpTxHttpcPack) Clear() {
 
 	this.Url = ""
 	this.StepId = 0
+	this.Driver = ""
 	this.ErrorType = ""
 	this.ErrorMessage = ""
 	this.Stack = ""
@@ -79,6 +81,9 @@ func (this *UdpTxHttpcPack) Write(dout *io.DataOutputX) {
 	} else if this.Ver > 20000 {
 		// Python
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.StepId))
+		if this.Ver >= 20105 {
+			dout.WriteTextShortLength(this.Driver)
+		}
 	} else {
 		if this.Ver >= 10105 {
 			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.StepId))
@@ -116,6 +121,9 @@ func (this *UdpTxHttpcPack) Read(din *io.DataInputX) {
 	} else if this.Ver > 20000 {
 		// Python
 		this.StepId = stringutil.ParseInt64(din.ReadTextShortLength())
+		if this.Ver >= 20105 {
+			this.Driver = din.ReadTextShortLength()
+		}
 	} else {
 		// PHP
 		if this.Ver >= 10105 {
@@ -128,6 +136,7 @@ func (this *UdpTxHttpcPack) Read(din *io.DataInputX) {
 		}
 	}
 }
+
 
 func (this *UdpTxHttpcPack) Process() {
 	this.HttpcURL = urlutil.NewURL(this.Url)
