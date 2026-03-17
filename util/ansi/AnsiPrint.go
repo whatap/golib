@@ -28,6 +28,8 @@ var (
 
 const (
 	ANSI_RESET  = "\u001B[0m"
+	ANSI_BOLD   = "\u001B[1m"
+	ANSI_DIM    = "\u001B[2m"
 	ANSI_BLACK  = "\u001B[30m"
 	ANSI_RED    = "\u001B[31m"
 	ANSI_GREEN  = "\u001B[32m"
@@ -36,6 +38,14 @@ const (
 	ANSI_PURPLE = "\u001B[35m"
 	ANSI_CYAN   = "\u001B[36m"
 	ANSI_WHITE  = "\u001B[37m"
+
+	// Bright colors
+	ANSI_BRIGHT_RED     = "\u001B[91m"
+	ANSI_BRIGHT_GREEN   = "\u001B[92m"
+	ANSI_BRIGHT_YELLOW  = "\u001B[93m"
+	ANSI_BRIGHT_BLUE    = "\u001B[94m"
+	ANSI_BRIGHT_MAGENTA = "\u001B[95m"
+	ANSI_BRIGHT_CYAN    = "\u001B[96m"
 )
 
 func init() {
@@ -76,6 +86,69 @@ func Blue(s string) string {
 		return s
 	}
 	return fmt.Sprintf("%s%s%s", ANSI_BLUE, s, ANSI_RESET)
+}
+
+func Magenta(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_PURPLE, s, ANSI_RESET)
+}
+
+func White(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_WHITE, s, ANSI_RESET)
+}
+
+func Bold(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BOLD, s, ANSI_RESET)
+}
+
+func BrightRed(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BRIGHT_RED, s, ANSI_RESET)
+}
+
+func BrightGreen(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BRIGHT_GREEN, s, ANSI_RESET)
+}
+
+func BrightYellow(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BRIGHT_YELLOW, s, ANSI_RESET)
+}
+
+func BrightBlue(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BRIGHT_BLUE, s, ANSI_RESET)
+}
+
+func BrightMagenta(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BRIGHT_MAGENTA, s, ANSI_RESET)
+}
+
+func BrightCyan(s string) string {
+	if enable == false {
+		return s
+	}
+	return fmt.Sprintf("%s%s%s", ANSI_BRIGHT_CYAN, s, ANSI_RESET)
 }
 
 func RedOut(s string) {

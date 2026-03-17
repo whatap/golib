@@ -36,8 +36,12 @@ const (
 	ARRAY_TEXT  = 73
 	ARRAY_LONG  = 74
 
+	ARRAY_DOUBLE_V = 75
+	ARRAY_BOOL_V   = 76
+
 	VALUE_MAP     = 80
 	INT_VALUE_MAP = 81
+	VALUE_METRIC_V = 82
 )
 
 func CreateValue(code byte) Value {
@@ -83,6 +87,15 @@ func CreateValue(code byte) Value {
 		return NewTextArray([]string{})
 	case ARRAY_LONG:
 		return NewLongArray([]int64{})
+	case ARRAY_DOUBLE:
+		return NewDoubleArray([]float64{})
+	case ARRAY_BOOLEAN:
+		return NewBooleanArray([]bool{})
+
+	case FLOAT_SUMMARY:
+		return NewFloatSummary()
+	case VALUE_METRIC:
+		return NewMetricValue()
 
 	case VALUE_MAP:
 		return NewMapValue()

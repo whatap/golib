@@ -3,11 +3,14 @@ package panicutil
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"runtime/debug"
 	"runtime/pprof"
+	"strings"
 	"time"
 
 	"github.com/natefinch/lumberjack"
+	"github.com/whatap/golib/util/ansi"
 )
 
 //PanicLogger panic logger
@@ -77,12 +80,31 @@ func DoWithTimeoutEx(timeout time.Duration, doFunc func(), msg string, onTimeout
 
 var IsDebug = false
 
+// getCallerName returns the caller function name (skip levels up the call stack)
+func getCallerName(skip int) string {
+	pc, _, _, ok := runtime.Caller(skip)
+	if !ok {
+		return ""
+	}
+	fn := runtime.FuncForPC(pc)
+	if fn == nil {
+		return ""
+	}
+	// Extract short name: "github.com/whatap/opsgent/filelog.(*Collector).collect" -> "filelog.(*Collector).collect"
+	name := fn.Name()
+	if idx := strings.LastIndex(name, "/"); idx >= 0 {
+		name = name[idx+1:]
+	}
+	return name
+}
+
 //Debug Debug
 func Debug(args ...interface{}) {
 	if IsDebug {
 		errorLogger := getErrorLogger()
 		t := time.Now()
-		message := fmt.Sprintln(t.Format("2006/01/02 15:04:05 [DEBUG] "), args)
+		caller := getCallerName(2)
+		message := fmt.Sprintf("%s [DEBUG] %s %s\n", t.Format("2006/01/02 15:04:05"), ansi.Yellow("["+caller+"]"), fmt.Sprint(args...))
 		errorLogger.Write([]byte(message))
 	}
 
@@ -92,7 +114,8 @@ func Debug(args ...interface{}) {
 func Info(args ...interface{}) {
 	errorLogger := getErrorLogger()
 	t := time.Now()
-	message := fmt.Sprintln(t.Format("2006/01/02 15:04:05 [INFO] "), args)
+	caller := getCallerName(2)
+	message := fmt.Sprintf("%s [INFO] %s %s\n", t.Format("2006/01/02 15:04:05"), ansi.Yellow("["+caller+"]"), fmt.Sprint(args...))
 	errorLogger.Write([]byte(message))
 }
 
@@ -100,7 +123,8 @@ func Info(args ...interface{}) {
 func Error(args ...interface{}) {
 	errorLogger := getErrorLogger()
 	t := time.Now()
-	message := fmt.Sprintln(t.Format("2006/01/02 15:04:05 [Error] "), args)
+	caller := getCallerName(2)
+	message := fmt.Sprintf("%s [Error] %s %s\n", t.Format("2006/01/02 15:04:05"), ansi.Yellow("["+caller+"]"), fmt.Sprint(args...))
 	errorLogger.Write([]byte(message))
 
 }

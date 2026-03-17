@@ -33,9 +33,16 @@ func (this *Label) String() string {
 	return this.Key + "=" + this.Value
 }
 
-func (this *Label) ID() int {
+func (this *Label) Id() int {
 	if this._id_ == 0 {
-		this._id_ = int(hash.HashStr(this.Key)) ^ int(hash.HashStr(this.Value))
+		this._id_ = MakeId(this.Key, this.Value)
 	}
 	return this._id_
+}
+
+func MakeId(key, value string) int {
+	h := 17
+	h = 31*h + int(hash.HashStr(key))
+	h = 31*h + int(hash.HashStr(value))
+	return h
 }

@@ -201,7 +201,6 @@ func CreatePack(t int16) Pack {
 		return NewLogSinkZipPack()
 	case PACK_AGENT_PROPERTY:
 		return NewAgentPropertyPack()
-
 	case PACK_SERVERINFO:
 		return NewServerInfoPack()
 	}
@@ -306,7 +305,6 @@ func GetPackTypeString(t int16) string {
 		return "LogsinkZipPack"
 	case PACK_AGENT_PROPERTY:
 		return "AgentPropertyPack"
-
 	}
 	return "Unknown"
 }

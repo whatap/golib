@@ -1,6 +1,10 @@
 package value
 
 import (
+	"bytes"
+	"fmt"
+	"strconv"
+
 	"github.com/whatap/golib/io"
 )
 
@@ -132,4 +136,88 @@ func (this *ListValue) Read(din *io.DataInputX) {
 	for t := 0; t < count; t++ {
 		this.table[t] = ReadValue(din)
 	}
+}
+
+func (this *ListValue) ToJsonString() string {
+	var buf bytes.Buffer
+	buf.WriteString("[")
+	for i := 0; i < len(this.table); i++ {
+		if i > 0 {
+			buf.WriteString(",")
+		}
+		value := this.table[i].(Value)
+		buf.WriteString(valueToJsonString(value))
+	}
+	buf.WriteString("]")
+	return buf.String()
+}
+
+func (this *ListValue) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("[")
+	for i := 0; i < len(this.table); i++ {
+		if i > 0 {
+			buf.WriteString(",")
+		}
+		value := this.table[i].(Value)
+		buf.WriteString(fmt.Sprintf("%s", value))
+	}
+	buf.WriteString("]")
+	return buf.String()
+}
+
+func valueToJsonString(value Value) string {
+	if value == nil {
+		return "null"
+	}
+	switch value.GetValueType() {
+	case VALUE_TEXT:
+		return quoteString(value.(*TextValue).Val)
+	case VALUE_MAP:
+		return value.(*MapValue).ToJsonString()
+	case VALUE_LIST:
+		return value.(*ListValue).ToJsonString()
+	case VALUE_BOOLEAN:
+		if value.(*BoolValue).Val {
+			return "true"
+		}
+		return "false"
+	case VALUE_NULL:
+		return "null"
+	case VALUE_DECIMAL:
+		return strconv.FormatInt(value.(*DecimalValue).Val, 10)
+	case VALUE_FLOAT:
+		return strconv.FormatFloat(float64(value.(*FloatValue).Val), 'f', -1, 32)
+	case VALUE_DOUBLE:
+		return strconv.FormatFloat(value.(*DoubleValue).Val, 'f', -1, 64)
+	default:
+		return fmt.Sprintf("%v", value)
+	}
+}
+
+func quoteString(s string) string {
+	var buf bytes.Buffer
+	buf.WriteString("\"")
+	for _, r := range s {
+		switch r {
+		case '"':
+			buf.WriteString("\\\"")
+		case '\\':
+			buf.WriteString("\\\\")
+		case '\n':
+			buf.WriteString("\\n")
+		case '\r':
+			buf.WriteString("\\r")
+		case '\t':
+			buf.WriteString("\\t")
+		default:
+			if r < 32 {
+				buf.WriteString(fmt.Sprintf("\\u%04x", r))
+			} else {
+				buf.WriteRune(r)
+			}
+		}
+	}
+	buf.WriteString("\"")
+	return buf.String()
 }
