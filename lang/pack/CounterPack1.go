@@ -620,7 +620,12 @@ func (this *CounterPack1) readHttpcMeter(din *io.DataInputX) {
 		m.Count = int32(din.ReadDecimal())
 		m.Error = int32(din.ReadDecimal())
 		if ver >= 9 {
-			m.Actx = int32(din.ReadDecimal())
+			flag := int(din.ReadByte())
+			if flag <= 8 {
+				m.Actx = int32(din.ReadDecimalLen(flag))
+			} else if flag == 9 {
+				m.Acts = this.readShortArray(din)
+			}
 		}
 		this.HttpcMeter.Put(host, m)
 	}
@@ -775,7 +780,12 @@ func (this *CounterPack1) writeHttpcMeter(dout *io.DataOutputX) {
 			dout.WriteDecimal(m.Time)
 			dout.WriteDecimal(int64(m.Count))
 			dout.WriteDecimal(int64(m.Error))
-			dout.WriteDecimal(int64(m.Actx))
+			if m.Acts != nil && len(m.Acts) >= 3 {
+				dout.WriteByte(9)
+				this.writeShortArray(dout, m.Acts)
+			} else {
+				dout.WriteDecimal(int64(m.Actx))
+			}
 		}
 	}
 }

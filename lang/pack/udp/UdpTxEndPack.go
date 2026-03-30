@@ -39,6 +39,8 @@ type UdpTxEndPack struct {
 	IFuncCount           int32
 	ProfIFuncCount       int32
 
+	IsLlm int32
+
 	// Processing data
 	ServiceURL     *urlutil.URL
 	McallerUrlHash int32
@@ -94,6 +96,8 @@ func (this *UdpTxEndPack) Clear() {
 	this.ProfEFuncCount = 0
 	this.IFuncCount = 0
 	this.ProfIFuncCount = 0
+
+	this.IsLlm = 0
 
 	// Processing data
 	this.ServiceURL = nil
@@ -171,6 +175,12 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.McallerPoidKey)
 		if this.Ver >= 20104 {
 			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		}
+		if this.Ver >= 20105 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.IsLlm)))
+		}
+		if this.Ver >= 20106 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
 		}
 	} else {
 		// PHP
@@ -276,6 +286,12 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		this.McallerPoidKey = din.ReadTextShortLength()
 		if this.Ver >= 20104 {
 			this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+		if this.Ver >= 20105 {
+			this.IsLlm = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+		if this.Ver >= 20106 {
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
 		}
 	} else {
 		// PHP
