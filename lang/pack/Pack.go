@@ -63,6 +63,7 @@ const (
 	PACK_EXTENSION = 0x1600
 	TAG_COUNT      = 0x1601
 	TAG_LOG        = 0x1602
+	PACK_TAG_META  = 0x1605
 
 	// To avoid cycle import errors, move open.Packenum
 	// PACK_OPEN_MX_PACK      = 0x1603
@@ -203,6 +204,8 @@ func CreatePack(t int16) Pack {
 		return NewAgentPropertyPack()
 	case PACK_SERVERINFO:
 		return NewServerInfoPack()
+	case PACK_TAG_META:
+		return NewTagMetaPack()
 	}
 
 	return nil
@@ -305,6 +308,8 @@ func GetPackTypeString(t int16) string {
 		return "LogsinkZipPack"
 	case PACK_AGENT_PROPERTY:
 		return "AgentPropertyPack"
+	case PACK_TAG_META:
+		return "TagMetaPack"
 	}
 	return "Unknown"
 }

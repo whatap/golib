@@ -13,8 +13,6 @@ type OpenMx struct {
 	label     []*Label
 	timestamp int64
 	val       float64
-	mxtype    byte
-	value1m   float64
 }
 
 func NewOpenMx() *OpenMx {
@@ -54,18 +52,6 @@ func (this *OpenMx) SetVal(v float64) {
 	this.val = v
 }
 
-func (this *OpenMx) SetMxType(t byte) {
-	this.mxtype = t
-}
-
-func (this *OpenMx) SetValue1m(v float64) {
-	this.value1m = v
-}
-
-func (this *OpenMx) GetMxType() byte {
-	return this.mxtype
-}
-
 func (this *OpenMx) GetVal() float64 {
 	return this.val
 }
@@ -74,19 +60,7 @@ func (this *OpenMx) GetTimestamp() int64 {
 	return this.timestamp
 }
 
-func (this *OpenMx) GetValue1m() float64 {
-	return this.value1m
-}
-
 func (this *OpenMx) Write(o *io.DataOutputX) {
-	if this.mxtype == 0 {
-		this.writeV0(o)
-	} else {
-		this.writeV1(o)
-	}
-}
-
-func (this *OpenMx) writeV0(o *io.DataOutputX) {
 	o.WriteByte(0) // version
 	o.WriteText(this.Metric)
 	labelSize := 0
@@ -101,28 +75,8 @@ func (this *OpenMx) writeV0(o *io.DataOutputX) {
 	o.WriteDouble(this.val)
 }
 
-func (this *OpenMx) writeV1(o *io.DataOutputX) {
-	o.WriteByte(1) // version
-	o.WriteText(this.Metric)
-	labelSize := 0
-	if this.label != nil {
-		labelSize = len(this.label)
-	}
-	o.WriteByte(byte(labelSize))
-	for _, lb := range this.label {
-		lb.Write(o)
-	}
-	o.WriteLong(this.timestamp)
-	o.WriteDouble(this.val)
-
-	o.WriteByte(this.mxtype)
-	if this.mxtype == MxTypeCOUNTER {
-		o.WriteDouble(this.value1m)
-	}
-}
-
 func (this *OpenMx) Read(in *io.DataInputX) *OpenMx {
-	ver := in.ReadByte()
+	in.ReadByte()
 	this.Metric = in.ReadText()
 	cnt := int(in.ReadByte())
 	if cnt > 0 {
@@ -133,14 +87,6 @@ func (this *OpenMx) Read(in *io.DataInputX) *OpenMx {
 	}
 	this.timestamp = in.ReadLong()
 	this.val = in.ReadDouble()
-
-	if ver == 0 {
-		return this
-	}
-	this.mxtype = in.ReadByte()
-	if this.mxtype == MxTypeCOUNTER {
-		this.value1m = in.ReadDouble()
-	}
 	return this
 }
 

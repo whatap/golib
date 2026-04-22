@@ -64,6 +64,9 @@ func (this *UdpTxHttpcPack) Write(dout *io.DataOutputX) {
 	if this.Ver > 60000 {
 		// Node.js
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.StepId))
+		if this.Ver >= 60102 {
+			dout.WriteTextShortLength(this.Driver)
+		}
 	} else if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.StepId))
@@ -104,6 +107,9 @@ func (this *UdpTxHttpcPack) Read(din *io.DataInputX) {
 	if this.Ver > 60000 {
 		// Node.js
 		this.StepId = stringutil.ParseInt64(din.ReadTextShortLength())
+		if this.Ver >= 60102 {
+			this.Driver = din.ReadTextShortLength()
+		}
 	} else if this.Ver > 50000 {
 		// Golang
 		this.StepId = stringutil.ParseInt64(din.ReadTextShortLength())
@@ -136,7 +142,6 @@ func (this *UdpTxHttpcPack) Read(din *io.DataInputX) {
 		}
 	}
 }
-
 
 func (this *UdpTxHttpcPack) Process() {
 	this.HttpcURL = urlutil.NewURL(this.Url)

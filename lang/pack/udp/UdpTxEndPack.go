@@ -122,6 +122,11 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 		dout.WriteTextShortLength(this.McallerSpec)
 		dout.WriteTextShortLength(this.McallerUrl)
 		dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Status)))
+		if this.Ver >= 60102 {
+			dout.WriteTextShortLength(this.McallerPoidKey)
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.IsLlm)))
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(this.McallerStepId))
+		}
 	} else if this.Ver > 50000 {
 		// Golang
 		dout.WriteTextShortLength(this.Host)
@@ -232,6 +237,11 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 		this.McallerSpec = din.ReadTextShortLength()
 		this.McallerUrl = din.ReadTextShortLength()
 		this.Status = stringutil.ParseInt32(din.ReadTextShortLength())
+		if this.Ver >= 60102 {
+			this.McallerPoidKey = din.ReadTextShortLength()
+			this.IsLlm = stringutil.ParseInt32(din.ReadTextShortLength())
+			this.McallerStepId = stringutil.ParseInt64(din.ReadTextShortLength())
+		}
 	} else if this.Ver > 50000 {
 		// Golang
 		this.Host = din.ReadTextShortLength()

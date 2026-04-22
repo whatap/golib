@@ -130,6 +130,11 @@ var udpHttpcPool = sync.Pool{
 		return NewUdpTxHttpcPack()
 	},
 }
+var udpHttpcStartPool = sync.Pool{
+	New: func() interface{} {
+		return NewUdpTxHttpcStartPack()
+	},
+}
 var udpErrorPool = sync.Pool{
 	New: func() interface{} {
 		return NewUdpTxErrorPack()
@@ -229,6 +234,10 @@ func CreatePack(t uint8, ver int32) UdpPack {
 		p.Ver = ver
 		return p
 		//return NewUdpTxHttpcPackVer(ver)
+	case TX_HTTPC_START:
+		p := udpHttpcStartPool.Get().(*UdpTxHttpcStartPack)
+		p.Ver = ver
+		return p
 	case TX_ERROR:
 		p := udpErrorPool.Get().(*UdpTxErrorPack)
 		p.Ver = ver
@@ -312,6 +321,8 @@ func ClosePack(p UdpPack) {
 		udpSqlParamPool.Put(p)
 	case TX_HTTPC:
 		udpHttpcPool.Put(p)
+	case TX_HTTPC_START:
+		udpHttpcStartPool.Put(p)
 	case TX_ERROR:
 		udpErrorPool.Put(p)
 	case TX_MSG:
