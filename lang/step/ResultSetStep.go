@@ -22,18 +22,18 @@ func (this *ResultSetStep) GetStepType() byte {
 
 func (this *ResultSetStep) Write(out *io.DataOutputX) {
 	this.AbstractStep.Write(out)
-	out.WriteDecimal(int64(this.Dbc))
-	out.WriteDecimal(int64(this.SqlHash))
 	out.WriteDecimal(int64(this.Elapsed))
 	out.WriteDecimal(int64(this.Fetch))
+	out.WriteDecimal(int64(this.Dbc))
+	out.WriteDecimal(int64(this.SqlHash))
 }
 
 func (this *ResultSetStep) Read(in *io.DataInputX) {
 	this.AbstractStep.Read(in)
-	this.Dbc = int32(in.ReadDecimal())
-	this.SqlHash = int32(in.ReadDecimal())
 	this.Elapsed = int32(in.ReadDecimal())
 	this.Fetch = int32(in.ReadDecimal())
+	this.Dbc = int32(in.ReadDecimal())
+	this.SqlHash = int32(in.ReadDecimal())
 }
 
 func (this *ResultSetStep) GetElapsed() int32 {

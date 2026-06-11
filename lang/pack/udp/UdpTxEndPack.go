@@ -39,7 +39,9 @@ type UdpTxEndPack struct {
 	IFuncCount           int32
 	ProfIFuncCount       int32
 
+
 	IsLlm int32
+	LoginId string
 
 	// Processing data
 	ServiceURL     *urlutil.URL
@@ -97,7 +99,9 @@ func (this *UdpTxEndPack) Clear() {
 	this.IFuncCount = 0
 	this.ProfIFuncCount = 0
 
+
 	this.IsLlm = 0
+  this.LoginId = ""
 
 	// Processing data
 	this.ServiceURL = nil
@@ -220,6 +224,10 @@ func (this *UdpTxEndPack) Write(dout *io.DataOutputX) {
 			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.ProfIFuncCount)))
 		}
 
+		if this.Ver >= 10111 {
+			dout.WriteTextShortLength(this.LoginId)
+		}
+
 	}
 }
 
@@ -334,6 +342,10 @@ func (this *UdpTxEndPack) Read(din *io.DataInputX) {
 			this.ProfEFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
 			this.IFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
 			this.ProfIFuncCount = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
+
+		if this.Ver >= 10111 {
+			this.LoginId = din.ReadTextShortLength()
 		}
 	}
 }

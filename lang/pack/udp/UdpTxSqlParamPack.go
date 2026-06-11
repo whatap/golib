@@ -5,6 +5,7 @@ import (
 
 	"github.com/whatap/golib/io"
 	"github.com/whatap/golib/util/paramtext"
+	"github.com/whatap/golib/util/stringutil"
 )
 
 type UdpTxSqlParamPack struct {
@@ -17,6 +18,7 @@ type UdpTxSqlParamPack struct {
 	ErrorMessage string
 
 	Stack string
+	Fetch int32
 }
 
 func NewUdpTxSqlParamPack() *UdpTxSqlParamPack {
@@ -53,6 +55,7 @@ func (this *UdpTxSqlParamPack) Clear() {
 	this.ErrorMessage = ""
 
 	this.Stack = ""
+	this.Fetch = 0
 
 }
 
@@ -77,6 +80,9 @@ func (this *UdpTxSqlParamPack) Write(dout *io.DataOutputX) {
 		// Python
 	} else {
 		// PHP
+		if this.Ver >= 10111 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Fetch)))
+		}
 	}
 }
 
@@ -101,6 +107,9 @@ func (this *UdpTxSqlParamPack) Read(din *io.DataInputX) {
 		// Python
 	} else {
 		// PHP
+		if this.Ver >= 10111 {
+			this.Fetch = stringutil.ParseInt32(din.ReadTextShortLength())
+		}
 	}
 
 }

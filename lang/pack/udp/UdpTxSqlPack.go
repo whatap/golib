@@ -88,6 +88,9 @@ func (this *UdpTxSqlPack) Write(dout *io.DataOutputX) {
 			dout.WriteTextShortLength(this.ErrorMessage)
 			dout.WriteTextShortLength(this.Stack)
 		}
+		if this.Ver >= 10111 {
+			dout.WriteTextShortLength(stringutil.ParseStringZeroToEmpty(int64(this.Fetch)))
+		}
 	}
 }
 
@@ -123,6 +126,9 @@ func (this *UdpTxSqlPack) Read(din *io.DataInputX) {
 			this.ErrorType = din.ReadTextShortLength()
 			this.ErrorMessage = din.ReadTextShortLength()
 			this.Stack = din.ReadTextShortLength()
+		}
+		if this.Ver >= 10111 {
+			this.Fetch = stringutil.ParseInt32(din.ReadTextShortLength())
 		}
 	}
 }
