@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/whatap/golib/util/dateutil"
 	"github.com/whatap/golib/util/list"
 )
 
@@ -34,21 +33,31 @@ func (this *RequestQueue) Get() interface{} {
 	return x
 }
 func (this *RequestQueue) GetTimeout(timeout int) interface{} {
-	t := timeout
-	timeto := dateutil.SystemNow() + int64(timeout)
+	this.lock.L.Lock()
+	defer this.lock.L.Unlock()
 
-	// 최대 3~ 4 회 루프
-	var v interface{} = nil
-	for v = this.GetNoWait(); v == nil; v = this.GetNoWait() {
-		time.Sleep(time.Duration(t/3) * time.Millisecond)
-
-		t = int(timeto - dateutil.SystemNow())
-		if t <= 0 {
-			break
-		}
+	if this.queue.Size() > 0 {
+		return this.queue.RemoveFirst()
 	}
+	if timeout <= 0 {
+		return nil
+	}
+	d := time.Duration(timeout) * time.Millisecond
+	deadline := time.Now().Add(d)
+	timer := time.AfterFunc(d, func() {
+		this.lock.L.Lock()
+		this.lock.Broadcast()
+		this.lock.L.Unlock()
+	})
+	defer timer.Stop()
 
-	return v
+	for this.queue.Size() <= 0 {
+		if !time.Now().Before(deadline) {
+			return nil
+		}
+		this.lock.Wait()
+	}
+	return this.queue.RemoveFirst()
 }
 func (this *RequestQueue) GetTimeout2(timeout int) interface{} {
 	this.lock.L.Lock()
